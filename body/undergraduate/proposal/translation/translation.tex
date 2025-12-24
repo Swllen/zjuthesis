@@ -1,17 +1,244 @@
-\cleardoublepage
 
+\cleardoublepage
 \newrefsection
 
-\chapter{外文翻译}
+\chapter{外文翻译：基于 ICESat-2 激光雷达多重散射测量反演雪深——不确定性分析}
 
-\sectionnonum{摘要}
+% 本章译自：Lu, Xiaomei et al. (2022) Deriving Snow Depth From ICESat-2 Lidar Multiple Scattering Measurements: Uncertainty Analyses.
+% Frontiers in Remote Sensing, 3:891481. doi:10.3389/frsen.2022.891481.
+% （原文为开放获取 CC BY；此处为中文翻译稿，供论文“外文翻译”使用。）
 
-\section{节标题}
+\section*{题目与作者信息（原文对应页首信息）}
+\addcontentsline{toc}{section}{题目与作者信息}
+\noindent\textbf{题目：}基于 ICESat-2 激光雷达多重散射测量反演雪深：不确定性分析
 
+\noindent\textbf{作者：}Xiaomei Lu，Yongxiang Hu，Xubin Zeng，Snorre A.\ Stamnes，Thomas A.\ Neuman，Nathan T.\ Kurtz，Yuekui Yang，Peng-Wang Zhai，Meng Gao，Wenbo Sun，Kuanman Xu，Zhaoyan Liu，Ali H.\ Omar，Rosemary R.\ Baize，Laura J.\ Rogers，Brandon O.\ Mitchell，Knut Stamnes，Yuping Huang，Nan Chen，Carl Weimer，Jennifer Lee，Zachary Fair
 
-参考~\cite{zjuthesisrules, zjuthesis}
+\noindent\textbf{期刊：}Frontiers in Remote Sensing（Frontiers in Remote Sensing）\\
+\noindent\textbf{收稿：}2022-03-07 \quad \textbf{接收：}2022-04-01 \quad \textbf{发表：}2022-04-29\\
+\noindent\textbf{DOI：}10.3389/frsen.2022.891481
+
+% =========================
+% 摘要（对应原文第 1 页摘要段落）
+% =========================
+\section*{摘要}
+\addcontentsline{toc}{section}{摘要}
+本研究系列第一部分所提出的扩散理论与蒙特卡洛激光雷达辐射传输模拟表明：雪深可由激光雷达后向散射光子路径长度分布的一阶、二阶与三阶矩推导得到。本文将这些方法应用于卫星 ICESat-2 激光雷达在北极海冰与北半球陆地表面的观测。对于北极海冰，ICESat-2 反演雪深与共址的 IceBridge 机载雪雷达测得雪深符合良好，其均方根（root-mean-square）差为 7.8\,cm，约占平均雪深的 29.2\%。由 ICESat-2 得到的陆地雪深沿北半球 ICESat-2 地面轨迹表现出显著的雪被空间变化，这与亚利桑那大学（University of Arizona）与加拿大气象中心（Canadian Meteorological Centre）的逐日格点雪产品一致。ICESat-2 与亚利桑那大学逐日格点雪产品之间的雪深均方根差为 14\,cm，约占亚利桑那大学平均雪深的 28\%。为更好理解上述结果，本文还讨论并量化了 ICESat-2 反演雪深的潜在误差来源，包括激光足迹内的地表粗糙度、大气前向散射、太阳背景噪声与探测器暗计数。模拟结果显示：若地表粗糙度导致的脉冲展宽标准差在 50\,cm 以内，则雪深误差小于 5\,cm。本文结果表明：ICESat-2 激光雷达测量可用于可靠反演雪深。雪深是冰冻圈研究（包括海冰厚度估算）中的关键地球物理参数，同时也为陆地水文过程建模提供重要约束。
+
+\noindent\textbf{关键词：}雪深；雪水当量；ICESat-2 激光雷达；路径长度分布；多重散射
+
+% =========================
+% 引言（对应原文第 2 页 INTRODUCTION）
+% =========================
+\section{引言}
+准确刻画雪深对于水电运行、淡水供给预报、融雪过程与社区土地资源可用性预测，以及气候变化影响预测具有重要意义（Clark 等，2011；Zeng 等，2018；Mortimer 等，2020；Pulliainen 等，2020；Tutton 和 Way，2021）。在极地地区，掌握海冰上当时（contemporaneous）的雪深信息既有助于约束区域气候态，也能提高卫星测高反演海冰厚度的精度（Brucker 和 Markus，2013；Newman 等，2014；Kwok 等，2020）。雪深可通过原位观测（Lejeune 等，2019；Ménard 等，2019；Wagner 等，2021）以及多种遥感技术反演获得，其中包括：卫星被动微波辐射计（如先进微波扫描辐射计 Advanced Microwave Scanning Radiometer，AMSR-E/AMSR2）（Markus 和 Cavalieri，1998；Kelly，2009；Kilic 等，2019）；次轨道雪雷达（如机载 IceBridge 雷达）（Kurtz 和 Farrell，2011；Kurtz 等，2013；Kwok 等，2017）；以及卫星雷达测高（如 CryoSat-2 和 Sentinel-1）（Kwok 等，2020；Lievens 等，2022）。具备高空间分辨率的原位与次轨道观测通常覆盖范围有限，且在山区与极地等偏远地区开展观测尤其困难。基于卫星微波的雪深产品空间分辨率相对较粗（网格尺度约 12.5 至 100\,km）（Kelly，2009；Takala 等，2011），且在约 0.8\,m 雪深处存在饱和倾向（Lievens 等，2022），这限制了对更高空间分辨率与更高精度应用场景的适用性。针对海冰雪被，现有卫星雷达测高系统（例如 CryoSat-2）能够测量雪层底界高度（即雪--冰界面），但仍需雪层顶界高度信息才能估算雪深（Kacimi 和 Kwok，2020；Kwok 等，2020）。
+
+2018 年 9 月 15 日发射的冰、云与陆地高程卫星-2（Ice, Cloud, and land Elevation Satellite-2，ICESat-2）搭载先进地形激光测高系统（Advanced Topographic Laser Altimeter System，ATLAS），用于测量冰盖地形、海冰自由板（sea ice freeboard），以及大气性质与全球植被等（Markus 等，2017；Martino 等，2019）。ATLAS 为 532\,nm 光子计数激光测高仪，脉冲重复频率 10\,kHz，名义足迹直径约 11\,m，沿轨采样间隔约 0.7\,m（Magruder 和 Brunt，2018；Martino 等，2019；Neumann 等，2019；Magruder 等，2020）。ICESat-2/ATLAS 的测量情景与此前两套地球科学星载激光雷达——ICESat（Abshire 等，2005）与具正交偏振的云-气溶胶激光雷达（Cloud-Aerosol Lidar with Orthogonal Polarization，CALIOP）（Hunt 等，2009）——完全不同。不同于 ICESat 与 CALIOP，ATLAS 使用光电倍增管（photomultiplier tubes，PMTs）在光子计数模式下作为探测器，对来自地表的单个光子进行定时，时间精度约 200\,ps（Martino 等，2019）。ATLAS 采用的单光子灵敏探测与飞行时间测量技术，可提供检测极地冰面小幅时序变化所需的高质量、高精度地形测量（Neumann 等，2019）。
+
+季节性雪深可利用 ICESat-2 ATL08 地形高程数据（Neuenschwander 等，2021）以及多个参考数字高程模型（digital elevation models，DEMs），通过有雪与无雪条件下的高程差估算（Shean 等，2021；Hu X. 等，2022）。然而，现有基于测高交叉点（crossovers）并依赖有雪/无雪观测的雪深反演往往稀疏且噪声较大（Shean 等，2021）。此外，参考数字高程模型的质量与垂直精度（Treichler 和 Kääb，2017；Liu 等，2020），以及 ICESat-2 与参考数字高程模型之间的空间分辨率差异，也会影响雪深反演结果。
+
+为克服这些限制，Hu Y. 等（2022）提出了一种新方法：利用雪层返回的垂直分辨、多重散射激光雷达信号直接反演雪深。幸运的是，ICESat-2 ATL03 全球地理定位光子数据集（Neumann 等，2021）提供了极高的垂直分辨率，包含来自地表的回波光子以及进入雪被并发生多重散射的次表层光子，为基于 ICESat-2 多重散射测量研究雪深提供了独特且令人振奋的机遇。本文为该研究的第二部分：第一部分（Hu Y. 等，2022）给出了基于蒙特卡洛激光雷达辐射传输模拟的理论基础，并展示了利用 ICESat-2 多重散射测量在南极冰盖与北极海冰上得到的雪深反演结果。本文（第二部分）通过与海冰上共址的次轨道 IceBridge 观测雪深（Kurtz 等，2013）、雪深气候态（Warren 等，1999）以及美国国家冰雪数据中心（National Snow and Ice Data Center，NSIDC）提供的陆地雪深产品（Brown 和 Brasnett，2010；Zeng 等，2018）进行对比，检验 ICESat-2 反演雪深。本文还讨论并量化由 ICESat-2 激光雷达多重散射测量估算雪深时的潜在误差来源，以支持进一步改进与校正，包括雪面形态特征、大气气溶胶前向散射、太阳背景噪声与探测器暗计数。基于本文方法，发现 ICESat-2 具备在极精细空间尺度上量化全球雪深的高能力。
+
+% =========================
+% 数据集（对应原文第 2-3 页 DATA SETS）
+% =========================
+\section{数据集}
+本节简要介绍本文使用的 ICESat-2 ATL03 全球地理定位光子数据以及其他雪深数据集。
+
+\subsection{ICESat-2 ATL03 光子数据}
+本文分析与雪深结果使用 ICESat-2 ATL03 全球地理定位光子产品第 5 版（Neumann 等，2021）。该产品以 HDF5 格式发布，每个数据粒度覆盖约 1/14 轨道，可通过 NSIDC 公开获取（https://nsidc.org/data/ATL03）。ATL03 产品被设计为单一数据源，提供所有光子数据与一个或多个更高层级产品所需的辅助信息（例如 ATLAS 冲激响应函数）（Neumann 等，2018）。ATL03 中每一个光子都带有时间标记并完成地理定位。为提高地表垂向剖面的信噪比（例如图~\ref{fig:fig1}），本文将三束强束的雪面返回光子沿轨聚合 10 个连续激光脉冲（约 7\,m）。
+
+\subsection{IceBridge 雪深}
+IceBridge 机载雷达系统测量回波雷达信号随时间的变化。雪深通过在雷达波形中识别雪--气界面与雪--冰界面，并将两界面之间的时间间隔乘以雪被中的光速来确定。关于 IceBridge 雪雷达雪深反演过程的细节可见 Kurtz 和 Farrell（2011）、Farrell 等（2012）、Kurtz 等（2013）以及 Newman 等（2014）。
+
+NSIDC 提供的 IceBridge 产品（IDCSI4，ASCII 格式）包含三项基本且重要的海冰性质：海冰自由板、雪深与海冰厚度（Kurtz 等，2015）。雪雷达足迹尺寸为横向 11\,m、沿轨 14.5\,m。雪深数据沿轨平均到 40\,m 尺度。IceBridge 次轨道外业活动从 2009 年至 2019 年每年重复开展。本文将 2019 年 4 月北极 IceBridge 外业的雪深数据与方法部分展示的 ICESat-2 反演雪深进行对比。
+
+\subsection{由同化原位观测与模拟数据得到的亚利桑那大学逐日 4\,km 格点雪深}
+本文使用的亚利桑那大学逐日 4\,km 格点雪数据集（第 1 版）通过一致同化以下三类资料建立：1）美国农业部自然资源保护局与加利福尼亚州水资源部雪遥测网络（Snow Telemetry network，SNOTEL）数千站点的雪水当量（snow water equivalent，SWE）与雪深原位观测（Serreze 等，1999）；2）独立坡向参数-高程回归模型（Parameter-elevation Regressions on Independent Slopes Model，PRISM）逐日 4\,km 格点降水与气温数据（Daly 等，2000）；3）美国国家气象局协作观测网络（Cooperative Observer network，COOP）的雪深数据（Broxton 等，2016a；Dawson 等，2017；Zeng 等，2018）。该雪产品提供 1981 至 2020 年美国本土逐日 4\,km 间距雪深数据，并可在 NSIDC 获取（Broxton 等，2019）。该产品尤其通过了五项严格检验：点对点插值（Broxton 等，2016a）、点对格点插值（Broxton 等，2016b）、与独立雪覆盖范围数据的评估（Dawson 等，2018）、与独立机载激光雷达雪深测量的评估（Dawson 等，2018）、以及与独立机载伽马射线雪水当量测量的评估（Cho 等，2020）。作为美国本土较可靠的格点雪产品，本文用亚利桑那大学逐日 4\,km 格点雪深评估 ICESat-2 在山区地形的雪深反演结果。
+
+\subsection{加拿大气象中心逐日雪深（第 1 版）}
+加拿大气象中心第 1 版雪产品包含：1998 至 2020 年北半球逐日分析雪深、雪深月平均与气候态，以及估算雪水当量；数据采用标准 24\,km 极射投影网格（Brown 和 Brasnett，2010）。雪深分析使用实时逐日雪深原位观测，并通过最优插值将其与由简单积累/消融模型生成的一阶猜测场融合。加拿大气象中心雪深分析在观测稀缺区域（如北极与山区）并不均匀；在没有雪深观测的位置，分析结果对应于在简化降雪、消融与老化假设下生成的一阶猜测场。本文使用加拿大气象中心逐日 24\,km 格点雪深，与 ICESat-2 反演的北半球陆地雪深进行对比；该对比主要在纬度大于 $50^\circ$N 的区域开展，因为该处更高质量的亚利桑那大学 4\,km 格点雪深产品不可用。
+
+\subsection{雪深气候态}
+北极地区广泛使用的雪深气候态由 Warren 等（1999）基于 1954--1991 年多年冰上的桩尺观测与测线调查建立。月平均雪深可由一个二维二次函数给出，该函数通过最小二乘程序拟合观测雪深值（Warren 等，1999）。该气候态最适用于多年冰占比较高的区域，例如格陵兰与埃尔斯米尔岛沿岸以北（Newman 等，2014）。由于近年来多年冰大量减少（Kurtz 和 Farrell，2011），该气候态可能不再提供准确雪深。本文使用该气候态展示沿 ICESat-2 地面轨迹的雪深地理分布形态（例如图~\ref{fig:fig4}）。
+
+% =========================
+% 方法（对应原文第 3-4 页 METHODOLOGY）
+% =========================
+\section{方法}
+本节描述用于从 ICESat-2 测得的积雪多重散射剖面反演雪深的方法。首先简要介绍用于去除仪器伪影时间延迟的去卷积方法；随后基于校正后的雪中多重散射光子路径长度分布反演雪深。
+
+\subsection{去卷积以去除雪层剖面中的 after pulses 伪影}
+ICESat-2 探测光子的一项特征是可能存在 after pulses（after pulses），即在主信号脉冲之后出现的小振幅脉冲（Martino 等，2020；Lu 等，2021b）。after pulses 的强度可能比次表层信号高出若干数量级。因此，用户在从 ATL03 数据提取次表层光子信息（例如海洋次表层浮游植物性质反演）时需格外谨慎（Lu 等，2020b；Lu 等，2021a）。
+
+ICESat-2 观测信号 $\beta_m(z)$ 是正确后向散射信号 $\beta(z)$ 与探测器冲激响应函数 $F(z)$ 的卷积，可写为：
+\begin{equation}
+\beta_m(z) = (F * \beta)(z),
+\end{equation}
+其中 $z$ 为高度（Lu 等，2020a；Lu 等，2020b）。通过去卷积可恢复散射介质的正确后向散射信号：
+\begin{equation}
+\beta(z) = F^{-1}(z)\,\beta_m(z),
+\end{equation}
+其中 $F^{-1}(z)$ 为 $F(z)$ 的逆。ICESat-2 在轨数据表明：不同月份与不同地表类型对应的探测器冲激响应 $F(z)$ 基本一致（Lu 等，2021b）。图~\ref{fig:fig1} 给出了示例：ICESat-2 测得的雪剖面（蓝色）、由模型拟合得到的冲激响应（绿色）（Martino 等，2020）、陆地硬目标回波（黑色），以及雪剖面去卷积结果（红色）。激光足迹内的陆地表面粗糙度会在距地表数米范围内展宽陆地后向散射信号（图~\ref{fig:fig1} 黑曲线）。因此，在去卷积中采用 0 至 9\,m 的拟合模型（图~\ref{fig:fig1} 绿色）与 9 至 45\,m 的陆地响应（黑色）共同构成冲激响应函数 $F(z)$。与观测雪剖面（图~\ref{fig:fig1} 蓝色）相比，其在雪面（0\,m）下约 2.3\,m 与 4.2\,m 处存在 after pulses 影响；去卷积结果（红色）在雪面以下不再出现尖锐回波。
+
+图~\ref{fig:fig2} 展示了沿地面轨迹的 ICESat-2 雪后向散射信号在去卷积前（$\beta_m(z)$）与去卷积后（$\beta(z)$）的对比。背景色表示以雪面光子归一化的 ICESat-2 光子计数。雪面设为 0\,m，雪面以下为负值。图~\ref{fig:fig1} 与图~\ref{fig:fig2} 表明：去卷积方法可有效去除 after pulses 造成的雪剖面伪影。
+
+% ---- 图 1
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figure/translate/figure1.jpg}
+  \caption{ICESat-2 去卷积前（蓝）与去卷积后（红）的雪剖面，以及系统冲激响应：模型拟合（绿）与陆地硬目标回波（黑）。零高度为雪面；雪面以下与以上分别为负值与正值。}
+  \label{fig:fig1}
+\end{figure}
+
+% ---- 图 2
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figure/translate/figure2.jpg}
+  \caption{南极沿地面轨迹的 ICESat-2 雪剖面：去卷积前（A）与去卷积后（B）。after-pulse 伪影被去卷积过程正确移除。颜色表示以雪面光子归一化后的光子计数。雪面设为 0\,m；雪面以下为负值。}
+  \label{fig:fig2}
+\end{figure}
+
+\subsection{基于 ICESat-2 数据的雪深反演}
+基于扩散理论与蒙特卡洛模拟，雪深（$h$）可由 ICESat-2 测得的雪中多重散射光子路径分布 $p(z)$ 的一阶矩（方法 1）、二阶矩（方法 2）与三阶矩（方法 3）推导得到［Hu Y. 等（2022）］：
+\begin{align}
+h &= \frac{\int_{-20}^{1} z\,p(z)\,dz}{\int_{-20}^{1} p(z)\,dz}, \tag{1}\\[2mm]
+h &= \left(\frac{4\int_{-20}^{1} z^2\,p(z)\,dz}{k_{sd}\int_{-20}^{1} p(z)\,dz}\right)^{1/3}, \tag{2}\\[2mm]
+h &= \left(\frac{8\int_{-20}^{1} z^3\,p(z)\,dz}{k_{sd}^{2}\int_{-20}^{1} p(z)\,dz}\right)^{1/5}, \tag{3}
+\end{align}
+其中 $p(z)=\beta(z)\exp(2k_a z)$ 为去除吸收影响后的雪后向散射路径长度分布；$\beta(z)$ 为 ICESat-2 观测到的雪后向散射信号（如图~\ref{fig:fig1} 与图~\ref{fig:fig2}）在去卷积之后的结果；$k_a$ 为雪的吸收系数；$z$ 为雪面以下深度；$k_{sd}$ 为雪的漫散射系数，可由雪反照率与吸收系数得到［Bohren 和 Barkstrom（1974）；Hu Y. 等（2022）］。本文采用主雪面下 20\,m 至雪面上 1\,m 的积分范围（例如图~\ref{fig:fig1} 红线）。当雪被下传的次表层光子更多时，积分下限可大于 20\,m。532\,nm 下雪反照率可由 ICESat-2 激光雷达测量推导为：
+\[
+\alpha = \frac{\int \beta(z)\,dz}{\int p(z)\,dz}.
+\]
+532\,nm 下的雪吸收系数（$k_a$）可通过迭代过程获得：当三种方法（式（1）--（3））得到的雪深收敛一致时取其对应的 $k_a$。关于雪层扩散理论细节可见 Hu Y. 等（2022）。
+
+使用 ICESat-2 测得的雪中多重散射光子路径分布（雪垂直剖面）反演雪深的优势在于：该方法不需要 1）用于地表高程反演的地方潮汐与大地水准面值，2）任何参考数字高程模型，3）无雪条件下的测量（Shean 等，2021；Hu X. 等，2022）。与被动微波辐射计（例如 AMSR2）反演雪深相比，本文提出的 ICESat-2 雪深方法可应用于一年冰、多年冰以及陆地积雪表面，空间分辨率可达数米。
+
+% =========================
+% 雪深结果（对应原文第 4-7 页 SNOW DEPTH RESULTS）
+% =========================
+\section{雪深结果}
+
+\subsection{北极海冰雪深结果}
+本技术应用于北极海冰上积雪，分析 ICESat-2 于 2019 年 4 月 12 日、4 月 19 日与 4 月 22 日沿地面轨迹的观测。对应的 ICESat-2（黑线）与 Operation IceBridge（彩色曲线与线）外业地面轨迹位置见图~\ref{fig:fig3}。ICESat-2 与 IceBridge 的地面足迹距离最远可达 4\,km。图~\ref{fig:fig4} 展示三种来源的雪深对比：ICESat-2（蓝、绿、黑曲线，分别对应式（1）--（3））、IceBridge（灰色散点与红色曲线）以及 Warren 等（1999）给出的雪深气候态（粉色）。图~\ref{fig:fig4} 中红色曲线为 IceBridge 雪深的沿轨 3.6\,km 滑动平均。图~\ref{fig:fig4} 中 ICESat-2 雪深来自中心强束（束 2），其相对 IceBridge 外业轨迹距离最近（最远约 1\,km），而强束 1 与强束 3 的距离可达 4\,km。
+
+所提出的雪深方法可应用于 ICESat-2 三束强束测量。图~\ref{fig:fig5}A 给出了 2019 年 4 月 12 日、19 日与 22 日三束强束上 ICESat-2（横轴）与 Operation IceBridge 外业（纵轴）雪深的对比，其中两仪器足迹距离小于 4\,km 时视为共址（轨迹位置见图~\ref{fig:fig3}）。雪深分布直方图与差值直方图分别见图~\ref{fig:fig5}B 与图~\ref{fig:fig5}C。统计结果表明：两者平均差约为 1.5\,cm，均方根差约为 7.8\,cm（约为平均雪深的 29.2\%），标准差约为 9.6\,cm。2019 年 4 月 6 日（轨迹位置见图~\ref{fig:fig3}）发现 22 处交叉点，其 ICESat-2 与 IceBridge 地面轨迹间距小于 15\,m。图~\ref{fig:fig5}D 给出 2019 年 4 月 6 日交叉点处的雪深散点对比。格陵兰沿岸以北 2019 年 4 月 6 日的平均雪深：ICESat-2 为约 $40 \pm 7$\,cm，IceBridge 为 $41 \pm 11$\,cm（轨迹位置见图~\ref{fig:fig3}）。
+
+% ---- 图 3
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figure/translate/figure3.jpg}
+  \caption{2019 年 4 月北极海冰区域的 ICESat-2（黑线，标注参考地面轨迹号 RGT）与 IceBridge（彩色曲线）地面轨迹。色标表示 IceBridge 雪深（cm）。}
+  \label{fig:fig3}
+\end{figure}
+
+% ---- 图 4
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figure/translate/figure4.jpg}
+  \caption{三种来源的雪深对比：ICESat-2（中心强束，分别由式（1）--（3）得到，蓝/绿/黑）、IceBridge 雪深（灰色散点，红色曲线）以及 Warren 等（1999）雪深气候态（粉色）。2019 年 4 月 12 日（A）、19 日（B）与 22 日（C）的 ICESat-2 与 IceBridge 地面轨迹在图~\ref{fig:fig3} 中以黑线表示。}
+  \label{fig:fig4}
+\end{figure}
+
+% ---- 图 5
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figure/translate/figure5.jpg}
+  \caption{(A) tolerant 共址（两仪器足迹距离小于 4\,km）条件下的雪深对比：ICESat-2（横轴）与 IceBridge 雪雷达（纵轴）；色标表示共址观测数量。(B) ICESat-2 与 IceBridge 雪深分布直方图。(C) ICESat-2 与 IceBridge 雪深差值（ICESat-2$-$IceBridge）直方图。(D) 2019 年 4 月 6 日交叉点处 ICESat-2 与 IceBridge 雪深散点对比（见图~\ref{fig:fig3}），此时两仪器间距小于 15\,m。}
+  \label{fig:fig5}
+\end{figure}
+
+\subsection{陆地雪深结果}
+山区汇水区雪深的准确认知对水文与生态应用至关重要。本节给出 ICESat-2 在陆地（包括山区）反演雪深的结果。图~\ref{fig:fig6} 展示 2020 年 3 月 27 日三种来源的雪深对比：ICESat-2 由式（1）得到的雪深（蓝色）、亚利桑那大学逐日 4\,km 格点雪产品（红色）以及加拿大气象中心逐日 24\,km 格点雪产品（绿色）。图~\ref{fig:fig6} 的 a、b、c 三个面板分别对应 ICESat-2 强束 1、强束 2 与强束 3，三束在横向（跨轨）方向相距约 3.3\,km。对应 ICESat-2 地面轨迹在图~\ref{fig:fig7}A 中以黑色实线表示，其中背景色为 2020 年 3 月 27 日亚利桑那大学逐日 4\,km 格点雪深（单位：m）。ICESat-2 反演雪深与逐日格点雪深总体一致。
+
+图~\ref{fig:fig6} 的结果显示：在纬度 $39^\circ$N 至 $46^\circ$N 的山区地形上，雪深可高于 90\,cm，也可低于 10\,cm。上述纬度范围内三幅面板的平均雪深分别为：ICESat-2 为 $54 \pm 23$\,cm，亚利桑那大学 4\,km 产品为 $50 \pm 17$\,cm，加拿大气象中心 24\,km 产品为 $69 \pm 49$\,cm。ICESat-2 与亚利桑那大学雪深的均方根差为 21\,cm，而亚利桑那大学与加拿大气象中心雪深的均方根差为 37\,cm。这表明 ICESat-2 与亚利桑那大学数据之间的一致性明显好于加拿大气象中心与亚利桑那大学数据之间的一致性。图~\ref{fig:fig6} 所示雪深差异及由地表粗糙度造成的 ICESat-2 雪深误差将在讨论部分进一步分析。
+
+图~\ref{fig:fig7}B 给出了 2020 年 3 月 ICESat-2 与亚利桑那大学逐日 4\,km 格点雪深的对比散点，仅包含 ICESat-2 地面轨迹与格点像元中心距离小于 50\,m 的样本。2020 年 3 月对应的 ICESat-2 地面轨迹在图~\ref{fig:fig7}A 中以线表示。两者雪深的均方根差约为 14\,cm，约为亚利桑那大学 4\,km 产品平均雪深的 28\%。
+
+% ---- 图 6
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figure/translate/figure6.jpg}
+  \caption{2020 年 3 月 27 日三种来源的雪深对比：ICESat-2（蓝色）、亚利桑那大学逐日 4\,km 格点雪产品（红色）以及加拿大气象中心逐日 24\,km 格点雪产品（绿色）。ICESat-2 地面轨迹在图~\ref{fig:fig7}A 中以黑色实线表示。注意三幅面板的横轴位置不同，对应 ICESat-2 三束强束在横向方向相距约 3.3\,km。}
+  \label{fig:fig6}
+\end{figure}
+
+% ---- 图 7
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figure/translate/figure7.jpg}
+  \caption{(A) 2020 年 3 月陆地表面的 ICESat-2 地面轨迹（线，标注参考地面轨迹号 RGT）；背景色为 2020 年 3 月 27 日亚利桑那大学逐日 4\,km 格点雪深（m）。(B) 2020 年 3 月 ICESat-2 与亚利桑那大学逐日格点雪深散点对比；仅包含 ICESat-2 足迹与格点像元中心距离小于 50\,m 的样本。}
+  \label{fig:fig7}
+\end{figure}
+
+% =========================
+% 讨论（对应原文第 7-8 页 DISCUSSION）
+% =========================
+\section{讨论}
+雪深结果部分表明：由 ICESat-2 激光雷达多重散射测量反演雪深总体表现合理。图~\ref{fig:fig6} 所示的雪深差异主要源于空间分辨率不同以及格点像元内雪深方差，因为逐日格点雪深为每个 4\,km 或 24\,km 像元内的平均值；另一方面，尤其在山区，雪深在 4\,km 或 24\,km 像元内可能显著变化。观测时间差异也是图~\ref{fig:fig6} 雪深差异的原因之一：逐日格点雪深为一天内的平均值，而 ICESat-2 测量发生在该日的特定时间，例如 2020 年 3 月 27 日图~\ref{fig:fig6} 所示轨迹对应的测量时间为 09:42 至 09:50 协调世界时（UTC）。
+
+我们认识到：部分误差来自 ICESat-2 与 IceBridge 的轨迹并非完全重合（例如图~\ref{fig:fig5}D），以及线状观测（ICESat-2）与网格像元（亚利桑那大学数据）之间的内在差异。然而，部分误差也可能由 ICESat-2 雪剖面中的噪声引起。ICESat-2 雪剖面形状（例如图~\ref{fig:fig1} 与图~\ref{fig:fig2}）主要受以下因素影响：1）系统冲激响应（例如发射脉冲形状）；2）大气前向散射（例如图~\ref{fig:fig8}）；3）足迹内地表高度分布。因此，接收系统内部光学反射导致的光子路径延迟（Martino 等，2020；Lu 等，2021b）、大气前向散射（Yang 等，2011），以及 ICESat-2 激光足迹（约 11\,m）内的地表粗糙度或坡度，都是基于 ICESat-2 雪中多重散射光子路径长度分布反演雪深的误差来源。
+
+Lu 等（2021b）已表明：不同月份、不同地表类型下 ATLAS 系统冲激响应基本一致。去卷积方法（见“去卷积以去除雪层剖面中的 after pulses 伪影”小节）可有效消除系统 after pulses 伪影引起的光子延迟（见图~\ref{fig:fig1} 与图~\ref{fig:fig2}）。大气云或气溶胶的前向散射也会增加光子路径长度（Yang 等，2011）。图~\ref{fig:fig8} 展示了南极在不同大气条件下前向散射对雪剖面的影响（红色与黑色曲线）。与图~\ref{fig:fig8} 中蓝色与绿色所示的近晴空剖面相比，非晴空条件下的雪剖面被拉伸。雪面粗糙度与坡度对反射脉冲形状具有类似影响（Gardner，1982；Zwally 等，2002）。
+
+作为简化，假设粗糙雪面高度分布服从高斯形式：
+\[
+g(z) = A\exp\!\left[-\frac{(z-z_0)^2}{2\sigma^2}\right],
+\]
+其中 $A$ 为振幅，$z$ 为高度，$z_0$ 为平均雪面位置，$\sigma$ 为由地表特征（粗糙度/坡度）和/或大气前向散射效应导致的高斯波形 $1/e$ 半宽（标准差）。图~\ref{fig:fig9}A 给出了模拟雪剖面（绿色与粉色）：它们是平滑雪剖面（红色）与宽度（$\sigma$）分别为 20\,cm 与 50\,cm 的高斯脉冲卷积得到的结果。图~\ref{fig:fig9}B 给出的雪深误差定义为：模拟粗糙雪剖面与平滑雪剖面反演雪深之差。结果显示：当脉冲展宽小于 50\,cm 时，雪深误差小于 5\,cm；但当脉冲展宽宽度（$\sigma$）大于 62\,cm 时，雪深误差可超过 10\,cm。由图~\ref{fig:fig9}B 可预期：在晴空条件与相对平坦地形（例如 $\sigma<20$\,cm）下，ICESat-2 反演雪深可获得较高精度（误差小于 5\,cm），这也得益于 ICESat-2 在地表的较小足迹（约 11\,m）。
+
+雪深反演的另一误差来源是太阳背景与探测器暗计数引起的光子计数噪声，它们会为观测到的雪中多重散射光子路径长度引入噪声。我们此前结果表明：太阳背景噪声比 532\,nm 雪面后向散射信号低约 3 至 4 个数量级，并且是太阳天顶角的函数（Lu 等，2021b）。若在白天不从 ICESat-2 测得的雪光子计数中去除太阳背景，反演雪深可能高出约 5 至 20\,cm。对白天观测分析，本文使用 ATL03 产品报告的太阳背景光子计数。探测器暗计数比雪面后向散射信号低约 5 至 6 个数量级，对反演雪深造成的偏差小于 0.2\,cm。
+
+% ---- 图 8
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figure/translate/figure8.jpg}
+  \caption{(A) 南极不同大气条件下由 ICESat-2 数据得到的雪剖面：近晴空（蓝色与绿色）与非晴空（黑色与红色）。(B) 与（A）相同，但放大至 10\,m 至 $-10$\,m 高度范围。可从黑色与红色曲线清晰看到大气前向散射导致的雪剖面脉冲拉伸。}
+  \label{fig:fig8}
+\end{figure}
+
+% ---- 图 9
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figure/translate/figure9.jpg}
+  \caption{(A) ICESat-2 雪剖面：去除 after pulses 延迟前（蓝色）与后（红色）；并给出 $\sigma=0.2$\,m（绿色）与 $\sigma=0.5$\,m（粉色）的模拟雪剖面。(B) 不同雪吸收系数（$k_a$，单位 $\mathrm{m^{-1}}$）条件下，脉冲展宽宽度导致的雪深误差。}
+  \label{fig:fig9}
+\end{figure}
+
+% =========================
+% 总结（对应原文第 8-9 页 SUMMARY）
+% =========================
+\section{总结}
+本文展示了一组从 ICESat-2 激光雷达测量反演雪深的新方法。所提出的方法使用 ICESat-2 光子路径长度分布的统计矩，具有不需要参考数字高程模型与无雪测量等额外辅助信息的优势。
+
+基于可获得的 Operation IceBridge 外业数据与逐日格点雪数据集，对 ICESat-2 在北极海冰与山区区域的雪深反演结果进行了评估。对比结果表明：ICESat-2 反演雪深与可用雪产品之间的均方根差在海冰与山区分别约为 7.8\,cm 与 14\,cm，约占平均值的 29.2\% 与 28\%。本文讨论并量化了 ICESat-2 反演雪深的潜在误差来源，包括激光足迹内地表粗糙度或坡度的影响、大气前向散射、太阳背景以及探测器暗噪声。本文结果表明：在夜间观测、晴空条件与相对平滑的雪面上（即在 11\,m ICESat-2 足迹内雪面高度的标准差小于 20\,cm），ICESat-2 反演雪深可达到较高精度（误差小于 5\,cm）。
+
+所提出方法的最大可反演雪深取决于雪垂直剖面的波形形态（例如图~\ref{fig:fig2} 与图~\ref{fig:fig9}A），而波形形态又取决于雪被后向散射光子测量的信噪比。给定 ICESat-2 的信噪比，当下传更多次表层光子并采用更宽的下传带宽时，最大可反演雪深可达 10\,m。尽管本文新方法已显示出合理性能与优势，但当雪被很浅且来自底层（例如海冰或陆地地表）的回波光子存在于雪中多重散射路径长度中时，该方法的应用具有挑战。我们将在第三部分研究中开展更全面的评估，讨论地形、植被冠层、底层影响及其他因素对 ICESat-2 雪深产品的潜在影响。
+
+凭借更小的足迹、测得光子的高质量与高精度，在 ICESat-2 可观测区域，ICESat-2 可提供厘米级精度、米级空间分辨率的雪深信息。ICESat-2 可为山区季节性雪变化与演化提供前所未有的记录。此外，ICESat-2 雪深结果有潜力支持并改进 ICESat-2 海冰厚度反演。本文结果强烈支持将 ICESat-2 激光雷达测量用于全球雪深研究。
+
+% =========================
+% 数据可用性声明、作者贡献、基金与致谢（对应原文第 9-11 页）
+% =========================
+\section{数据可用性声明}
+本文研究中呈现的原始贡献已包含在文章/补充材料中；进一步咨询可联系通讯作者。
+
+\section{作者贡献}
+作者确认对论文的贡献如下：研究构思与设计：YH 与 XL；初稿撰写：XL；结果分析与解释：所有作者共同完成。所有作者审阅了结果并批准了稿件最终版本。
+
+\section{经费资助}
+第一作者经费由美国国家航空航天局 ICESat-2 项目资助（资助号 80NSSC21K0910）。
+
+\section{致谢}
+作者感谢美国国家航空航天局 ICESat-2 项目、美国国家航空航天局遥感理论项目，以及美国国家航空航天局先进空间技术办公室（ESTO）的创新仪器计划（IIP）对本研究的支持。
+
+\section*{参考文献（原文列出，建议以 biblatex 统一管理）}
+\addcontentsline{toc}{section}{参考文献（原文列出）}
+\noindent 本文译稿对应原文参考文献条目较多，建议在学位论文中通过 \texttt{biblatex} 数据库统一录入与排版；此处不逐条翻译参考文献题名与期刊信息，以保持引用规范与可检索性。
+
+\noindent 参考~\cite{zjuthesisrules,zjuthesis}
 
 \begingroup
-    \linespreadsingle{}
-    \printbibliography[title={外文翻译参考文献}]
+\singlespacing
+\printbibliography[title={外文翻译参考文献}]
 \endgroup
