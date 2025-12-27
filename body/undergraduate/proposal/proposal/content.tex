@@ -1,4 +1,5 @@
 \section{项目的主要内容和技术路线}
+\subsection{主要研究内容}
 \begin{enumerate}
   \item \textbf{数据获取与研究区设定：}
   获取 ICESat-2 ATL03 光子数据，优先选取夜间观测以降低太阳背景噪声；选择典型海冰区与陆地（含山地/积雪区）作为实验研究区，并结合辅助信息进行大气与地表条件筛选\cite{Lu2022Unc}。
@@ -22,38 +23,391 @@
   与独立参考数据（如机载/地面观测或权威格网产品）开展对比验证，计算偏差、RMSE、相关系数等统计指标，形成可复用的验证与诊断框架，并总结适用范围与改进方向\cite{Lu2022Unc}。
 \end{enumerate}
 
-\subsection{主要研究内容}
-建议的技术流程如下：
+\subsection{技术路线}
+本研究利用子午面法和半解析蒙特卡洛模型相结合，可构建半解析蒙特卡洛偏振辐射传输模型(Semianalytic Monte Carlo polarized radiative transfer model, SALMONP)，以此仿真激光雷达的偏振回波信号。图~\ref{半解析蒙特卡罗偏振激光雷达辐射传仿真模型流程图} 展示了该半解析蒙特卡洛仿真模型的基本流程图。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figure/proposal/simulate_workflow.jpg}
+    \caption{半解析蒙特卡罗偏振激光雷达辐射传仿真模型流程图}
+    \label{半解析蒙特卡罗偏振激光雷达辐射传仿真模型流程图}
+\end{figure}
+
+与普通的半解析蒙特卡洛辐射传输仿真过程类似，为了提高程序效率将光子运动分为漫射散射过程和半解析接收过程两部分。漫射散射过程主要模拟光子和积雪层的散射和吸收过程，光子的运动主要包括随机游走和散射。在进行运动仿真之前，需要定义光子状态参数。光子的运动方向由天顶角 $\theta$ 和方位角 $\varphi$ 决定，$\theta$ 为与 $z$ 轴正向的夹角，$\varphi$ 规定为顺着 $z$ 轴正向看时，$x$ 轴顺时针方向的角度；设置光子的初始方向角为 $\theta_0=0, \varphi_0=0$，则其方向余弦 $[u_x, u_y, u_z] = [0, 0, 1]$。设置其初始位置坐标 $r_0 = [0, 0, 0]$；初始斯托克斯矢量 $S_0 = [1, 1, 0, 0]^T$，代表发射光子的偏振方向平行于 $x$-$z$ 平面。
+
+根据半解析MC光子接收原理将每个光子看作一个光子包，并赋予其初始权重 $W_0$ 为1，在每次发生散射行为后回到探测器部分光子包的权重为 $W_{sd}$，计算得到的概率值。而光子包的剩余部分 $W_{remain}$ 则继续在积雪中传播。此时，在程序中将出现两个分支。继续传播的光子包将走1分支，直接回到探测器的光子包将走2分支。
+
+在多次散射模拟中,对光子运动状态主要包含以下两个方向,即散射角及运动方向的确定以及散射光偏振的确定。
+
+\subsubsection{A 散射角及运动方向的确定}
+光子的散射过程主要包括产生随机的运动方向和确定散射光的偏振状态。如图~\ref{子午面几何示意图}所示，光子的散射方向由散射角 $\theta$ 和方位角 $\alpha_1$(即散射前子午面与散射面之间夹角)确定。在非偏振激光雷达辐射传输的MC仿真中，散射角可通过对散射相函数的随机抽样获得，而方位角可以看作是与散射角无关的均匀分布在 $[0, 2\pi]$ 之间的随机数。但对于偏振光而言，其散射方向的确定则相对复杂。在偏振MC仿真中是根据散射相函数和拒绝性采样算法来确定的。对于线偏振光来说，其相函数与散射角 $\theta$ 和方位角 $\alpha_1$ 都相关，斯托克矢量为 $[I_0, Q_0, U_0, V_0]^T$ 的入射光相函数 $f(\theta, \alpha_1)$ 的表达式如下:
+\begin{equation}
+    f(\theta, \alpha_1) = M_{11}(\theta) I_0 + M_{12}(\theta)(Q_0 \cos 2\alpha_1 + U_0 \sin 2\alpha_1)
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figure/proposal/子午面.jpg}
+    \caption{子午面几何示意图。OP1和OP2分别为散射前后光子的运动方向，NOP1和NOP2分别为散射前后的子午面。}
+    \label{子午面几何示意图}
+\end{figure}
+
+拒绝性采样法的原理为：取 $\theta_{rand}$ 为 0 到 $\pi$ 之间均匀分布的随机数，$\alpha_{rand}$ 为 0 到 $2\pi$ 之间均匀分布的随机数，$\xi_{rand}$ 为 0 到 1 之间均匀分布的随机数，当 $f(\theta_{rand}, \alpha_{rand}) / f_{max} \geq \xi_{rand}$ 时，$\theta_{rand}$ 和 $\alpha_{rand}$ 即为新的散射角度。
+
+在获得散射角 $\theta$ 和方位角 $\alpha_1$ 的基础上，由球面三角形余弦定理可得
+\begin{equation}
+  \cos \vartheta_2
+  =
+  \cos \vartheta_1 \cos \theta
+  +
+  \sin \vartheta_1 \sin \theta \cos \alpha_1
+\end{equation}
+
+\begin{equation}
+  \varphi_2 =
+  \begin{cases}
+    \varphi_1 - \arccos
+    \left(
+    \dfrac{\cos \theta - \cos \vartheta_1 \cos \vartheta_2}
+    {\sin \vartheta_1 \sin \vartheta_2}
+    \right),
+    & (0 < \alpha_1 < \pi), \\[10pt]
+    \varphi_1 + \arccos
+    \left(
+    \dfrac{\cos \theta - \cos \vartheta_1 \cos \vartheta_2}
+    {\sin \vartheta_1 \sin \vartheta_2}
+    \right),
+    & (\pi < \alpha_1 < 2\pi),
+  \end{cases}
+\end{equation}
+
+其中，$\vartheta_1$ 和 $\vartheta_2$ 分别为入射光和散射光的天顶角，
+$\varphi_1$ 和 $\varphi_2$ 分别为入射光和散射光的方位角。
+根据 $\vartheta_2$ 和 $\varphi_2$ 可以得到散射后的运动方向。
+
+\subsubsection{B 散射光偏振状态的确定}
+当使用拒绝性采样方法确定了光子的散射角和方位角后，要实现光子的散射过程需要对斯托克斯矢量进行3次转换操作。首先是将斯托矢量的参考坐标系旋转至散射面。偏振光场初始子午面为NOP1，散射面即积雪粒子相矩阵的参考面P1OP2。将斯托克斯矢量与旋转矩阵 $R(-\alpha_1)$ 相乘，即可得到新的斯托克斯矢量。该旋转矩阵的作用相当于将斯托克斯矢量逆时针旋转角度 $\alpha_1$，将参考面旋转至散射面。第二步即将光子的斯托克斯矢量与积雪的散射相矩阵 $M(\theta)$ 相乘。最后，需要将斯托克斯矢量逆时针旋转 $\alpha_2$ 角，使其参考系旋转到散射光的子午面NOP2，$\alpha_2$ 角的求解方法为:
+\begin{equation}
+\alpha_2 =
+\begin{cases}
+\arccos
+\left(
+\dfrac{\cos \vartheta_1 - \cos \vartheta_2 \cos \theta}
+{\sin \vartheta_2 \sin \theta}
+\right),
+& (0 < \alpha_1 < \pi), \\[10pt]
+2\pi - \arccos
+\left(
+\dfrac{\cos \vartheta_1 - \cos \vartheta_2 \cos \theta}
+{\sin \vartheta_2 \sin \theta}
+\right),
+& (\pi < \alpha_1 < 2\pi),
+\end{cases}
+\end{equation}
+
+由此可得到，发射散射后光场的斯托克斯矢量 $\mathbf{S}_{\mathrm{new}}$ 为
+\begin{equation}
+\mathbf{S}_{\mathrm{new}}
+=
+R(\pi - \alpha_2)\, M(\theta)\, R(-\alpha_1)\, \mathbf{S}.
+\end{equation}
+
+
+其中，分支1的光子包需要根据其权重判断其生存状态，即如果光子包的权重太小，低于我们设定的初始值，则引入俄罗斯轮盘赌程序，如果光子包的生存状态为“Dead”则停止对该光子包的追迹，反之则回到步长确定的步骤继续光子散射过程。重复此流程直到遍历所有初设光子。
+
+其中，半解析回波接收部分的光子包将通过分支2的程序，同样也需要经历上述三次对斯托克斯矢量的操作。相关的计算过程可表示为：
+\begin{equation}
+\mathbf{S}_{\mathrm{sig}}
+=
+R(\pi - \alpha_2')\, M(\theta)\, R(-\alpha_1')\, \mathbf{S} \times w_s ,
+\end{equation}
+
+\begin{equation}
+\begin{cases}
+\displaystyle
+\cos \alpha_1'
+=
+\dfrac{u z_{\mathrm{sca}} - u z_{\mathrm{inc}} \cos \theta}
+{\sqrt{1 - u z_{\mathrm{inc}}^{2}} \, \sin \theta}, \\[10pt]
+\displaystyle
+\cos \alpha_2'
+=
+\dfrac{u z_{\mathrm{inc}} - u z_{\mathrm{sca}} \cos \theta}
+{\sqrt{1 - u z_{\mathrm{sca}}^{2}} \, \sin \theta}.
+\end{cases}
+\end{equation}
+
+计算过程中可能会出现以下几个特殊情况：
+
+当散射角 $\theta$ 为 $0$，式(9)将变为：
+\begin{equation}
+\cos \alpha_1' = 1, \qquad \cos \alpha_2' = 1 .
+\end{equation}
+
+当 $u z_{\mathrm{inc}} = 1$，即 $\sqrt{1 - u z_{\mathrm{inc}}^{2}} = 0$，式(9)将变为：
+\begin{equation}
+\begin{cases}
+\cos \alpha_1' = - u z_{\mathrm{inc}} \cos (\varphi_{\mathrm{sca}} - \varphi_{\mathrm{inc}}), \\[6pt]
+\cos \alpha_2' = u z_{\mathrm{inc}} .
+\end{cases}
+\end{equation}
+
+当 $u z_{\mathrm{sca}} = 1$，即 $\sqrt{1 - u z_{\mathrm{sca}}^{2}} = 0$，式(9)将变为：
+\begin{equation}
+\begin{cases}
+\cos \alpha_1' = u z_{\mathrm{sca}}, \\[6pt]
+\cos \alpha_2' = - u z_{\mathrm{sca}} \cos (\varphi_{\mathrm{sca}} - \varphi_{\mathrm{inc}}) .
+\end{cases}
+\end{equation}
+
+
+在进行半解析光子接收时，如果该部分光子与探测器的连线不与 $z$ 轴重合的话，其斯托克斯矢量的参考面与探测器坐标系的参考子午面即XOZ平面会存在一定的夹角 $\phi$，回到探测器的光子的斯托克斯矢量需要乘以旋转矩阵 $R(\phi)$，其中 $\phi$ 角可计算得到；然后将该部分光子的权重加到累计的回波信号中。通过对大量的光子进行追迹，即可得到最终的偏振激光雷达回波信号。
+
+通常，一个激光脉冲中的光子能回到探测器的概率很低，随着光学厚度的增加概率还会下降。以上半解析MC计算过程的引入将会大大提高模型的收敛速度。通过该半解析蒙特卡洛模型，可以快速获得激光的实际光程，从而研究在不同雪面处的多次散射过程，获得更加准确的积雪激光雷达信号，从而反演出积雪雪深与其他参数。
+
+\subsubsection{单光子探测器响应模型}
+如图~\ref{单光子探测器响应模型}所示，随着返回能量的强度增加，实际探测光子数和预期光子数存在着越来越大的误差。该误差的来源是光子计数探测器的死时间效应，即导致光子计数探测器在一个死时间内最多能探测到一个光子，进而在返回能量增加时导致接收光子数小于实际光子数。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figure/proposal/单光子探测器响应模型.png}
+    \caption{单光子探测器响应模型}
+    \label{单光子探测器响应模型}
+\end{figure}
+
+对于单光子探测器件，当一个光子转化为光电子进而进行增益放大以及探测状态恢复的过程中，对后续到达的光子处于“阻塞”状态，无法探测后续到达的光子，直到本次光电转化过程结束，将单光子探测器件处于阻塞状态的时间段称为存在“死区”时间。根据探测器死区时间与激光雷达的时间选通的相对关系，探测器的死区时间分为长死区时间和短死区时间。当探测器的死区时间比选通门的时间长时，则认为探测器具有长死区时间，对于长死区探测器，单脉冲情况下最多只能探测到一个光子事件。当探测器的死区时间比选通门的时间短时，则认为探测器具有短死区时间；单脉冲情况下，探测器在时间选通的范围内，可以实现多次光子探测，产生多个光子事件。
+目前的光子计数激光雷达采用短死区的单光子探测器，因此在光子计数激光雷达的开窗时间范围内，光子探测器可以对多个光子进行响应产生大量光子事件。当光子探测器的死区时间为td，则光子探测器在时间$(t,t+\Delta t)$范围内探测到光子事件的前提是光子探测器在$(t-t_d,t)$时间范围内没有光子事件产生；并且令时间间隔$\tau<t_d$，则$(t,t+\Delta t)$范围内最多产生一个光子事件，则产生光子事件的概率为：
+
+\begin{equation}
+    P(t, t+\Delta t) = [1 - P_{sd}(t-t_d, t)] \cdot [1 - \exp(-\eta N(t, t+\Delta t))]
+    \label{单光子探测器响应模型公式}
+\end{equation}
+其中，$Psd(t-t_d,t)$为光子探测器在$(t-t_d,t)$产生光子事件的概率。根据公式~\ref{单光子探测器响应模型公式}可知，在$(t,t+\Delta t)$ 时间范围内产生光子事件的概率需要从光子计数激光雷达开窗时刻开始逐步推算。通过近似简化，在短死区情况下$(t,t+\Delta t)$时间范围产生光子事件的概率表示为：
+\begin{equation}
+P_{sd}(t,t+\Delta t)
+=
+\exp\!\left[-N_{ns}(t-t_d,t)\right]
+\left[1-\exp\!\left(-N_{ns}(t,t+\Delta t)\right)\right]
+\end{equation}
+
+为了降低死区时间对产生光子事件概率的影响，光子探测器通常采用多通道共同工作的模式，
+例如，ATLAS 系统中，强波束对应的 16 个通道，弱波束对应 4 个通道。
+当光子计数激光雷达系统为多通道时，假设接收系统接收到的光子平均分配给每个通道，
+则每个通道在 $(t,t+\Delta t)$ 时间段产生光子事件的概率为：
+
+\begin{equation}
+P_{sd}(t,t+\Delta t)
+=
+\exp\!\left[-\dfrac{N_{ns}(t-t_d,t)}{N_D}\right]
+\left[1-\exp\!\left(-\dfrac{N_{ns}(t,t+\Delta t)}{N_D}\right)\right]
+\end{equation}
+
+在 $(t,t+\Delta t)$ 时间范围内，产生的光子事件总数为：
+
+\begin{equation}
+N_{sa}(t,t+\Delta t)
+=
+N_D \, P_{sd}(t,t+\Delta t)
+\end{equation}
+
+在光子计数激光雷达的时间窗范围内，光子计数探测器产生多个光子事件，连续多个脉冲后，产生的光子事件可形成横坐标为发射脉冲时间、纵坐标为光子事件高度的点云图，因此论文将光子计数激光雷达产生的大量光子事件称为光子点云，其中由信号光子产生的光子事件称为信号点云，而噪声光子产生的光子事件组成噪声点云。
+
+之后通过蒙特卡洛过程仿真光子在探测器的在探测器被信号光子触发后，会产生短时间的“阻塞”状态，导致探测器产生的光子事件分布与目标的回波分布存在区别，因此必须考虑单光子探测器对返回回波的响应过程。在基于激光雷达方程、随机海面模型、水体的散射和衰减模型仿真得到目标回波的基础上，进一步仿真计算星载激光雷达产生的光子事件，整个仿真流程如图~\ref{探测器光子点云仿真流程图} 所示。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figure/proposal/探测器光子点云仿真流程图.png}
+    \caption{探测器光子点云仿真流程图}
+    \label{探测器光子点云仿真流程图}
+\end{figure}
+(1) 根据计算得到整个接收时间范围内单脉冲返回的平均光电子数
+$N_{al}$ 和背景光噪声产生的光电子数 $N_{nl}$，
+由于光子计数激光雷达接收到的单脉冲光电子数满足泊松分布，
+则实际接收到 $k$ 个光电子的概率为：
+\begin{equation}
+P(k)
+=
+\dfrac{N_{al}^{k}\exp(-N_{al})}{k!},
+\qquad k=0,1,2,\ldots
+\end{equation}
+
+根据生成的 $0\sim1$ 均匀分布的随机数，
+确定实际产生的信号光子事件数 $M$，
+噪声光子事件数为 $N$。
+
+(2) 按照探测器的计时分辨率 $\Delta t$
+将接收时间范围划分为时间单元，
+则可以计算每个时间单元内的探测概率 $\mathrm{PDF}(k)$，
+进而计算得到每个时间单元对应的归一化累计：
+\begin{equation}
+C_{DF}(k)
+=
+\sum_{i=1}^{k} P_{DF}(k)
+\end{equation}
+
+(3) 在 $0\sim1$ 范围内生成符合均匀分布的概率随机数 $P_r$，
+确定随机数 $P_r$ 所在的时间片 $T_r$，
+记为一次光子事件，
+$T_r$ 为单光子事件产生的时间单元。
+重复以上过程，
+一共产生 $M$ 个随机信号光子事件；
+按照以上流程同样产生 $N$ 个噪声光子事件。
+
+(4) 按照信号光子事件和噪声光子事件产生的时间进行排序；
+以时间片最小的单光子事件作为第一个单光子事件，
+剔除掉其后死区时间内的单光子事件，
+选择死区时间外最近一个光子事件作为第二个光子事件，
+依次类推，
+确定所有的单光子事件，
+从而生成带有标签的信号点云。
+
+\subsubsection{雪深及其他积雪参数反演}
+对于均匀照明，光子扩散理论表明，对于均匀照明，光子扩散的平均行进路径长度 $\langle L \rangle$ 在扩散性非吸收介质的入射和出射之间的比值等于 $4V/S$，其中 $V$ 和 $S$ 属于是任何 3 维扩散介质的体积和表面积。基于扩散理论，雪深($h$)可以从 ICESat-2 测量的雪多重散射光子路径分布 $p(z)$ 的一阶(方法 1)、二阶(方法 2)和三阶(方法 3)矩推导出。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figure/proposal/均匀照明光子扩散的平均行进路径长度.png}
+    \caption{均匀照明光子扩散的平均行进路径长度}
+    \label{均匀照明光子扩散的平均行进路径长度}
+\end{figure}
+其中，一阶方法可表示为：
+\begin{equation}
+h
+=
+\dfrac{\displaystyle \int_{-\infty}^{1} z\, p(z)\,\mathrm{d}z}
+{\displaystyle \int_{-\infty}^{1} p(z)\,\mathrm{d}z}
+\end{equation}
+
+二阶方法可表示为：
+\begin{equation}
+h
+=
+\left(
+\dfrac{\displaystyle 4\int_{-\infty}^{1} z^{2} p(z)\,\mathrm{d}z}
+{\displaystyle k_{sd}\int_{-\infty}^{1} p(z)\,\mathrm{d}z}
+\right)^{1/3}
+\end{equation}
+
+三阶方法可以表示为：
+\begin{equation}
+h
+=
+\left(
+\dfrac{\displaystyle 8\int_{-\infty}^{1} z^{3} p(z)\,\mathrm{d}z}
+{\displaystyle k_{sd}^{2}\int_{-\infty}^{1} p(z)\,\mathrm{d}z}
+\right)^{1/5}
+\tag{24}
+\end{equation}
+
+式中，吸收雪后向散射光程分布可表示为：
+\begin{equation}
+p(z)
+=
+\beta(z)\exp(2k_a z)
+\end{equation}
+
+$p(z)$ 为无吸收雪后向散射光程分布；
+以星载激光雷达 ATLAS（ICESat-2）为例，
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figure/proposal/ICESat-2_沿南极洲地面轨迹测量的积雪剖面.jpg}
+    \caption{ICESat-2 沿南极洲地面轨迹测量的积雪剖面}
+    \label{fig:snow_profile}
+\end{figure}
+
+图~\ref{fig:snow_profile}展示了 $\beta(z)$ 是激光雷达实测的雪反向散射信号；
+$k_a$ 是积雪的吸收系数；
+$z$ 为雪面以下的具体深度；
+$k_{sd}$ 为积雪漫散射系数，
+可从雪反射率和吸收系数中得到。
+
+本研究拟使用了从雪面以下 $20\,\mathrm{m}$ 到雪面以上 $1\,\mathrm{m}$ 的积分。
+$532\,\mathrm{nm}$ 处的雪反照率可以表示为：
+\begin{equation}
+a
+=
+\int \beta(z)\,\mathrm{d}z
+\int p(z)\,\mathrm{d}z
+\end{equation}
+
+当三种方法所反演的积雪深度收敛时，可以通过迭代过程获得 $532\,\mathrm{nm}$ 处的积雪吸收系数。具体的迭代过程为：
+
 \begin{enumerate}
-  \item ATL03 数据下载与时空子集提取（叠加晴空/地表类型筛选信息）；
-  \item 沿轨聚合构建雪回波垂向剖面（含背景扣除）；
-  \item 去卷积校正系统冲激响应/afterpulse 伪影；
-  \item 构建（必要时吸收校正的）路径长度分布并计算低阶矩；
-  \item 基于矩关系进行雪深反演，并迭代参数以保证一致性；
-  \item 进行 QC 与不确定性标识（展宽/大气/噪声）；
-  \item 外部验证与统计评估，总结适用范围与误差机制。
+  \item 使用仪器在平坦陆地的瞬态响应对机载光子计数激光雷达的后向散射剖面进行反卷积，该步骤的作用是尽可能消除后脉冲和系统函数的影响，获得尽可能贴近实际的信号。
+
+  \item 对积雪吸收系数 $k_a$ 进行初步猜测，在没有现场实际测量值或其他先验值的基础上，可以使用 $k_a = 0.07\,\mathrm{m}^{-1}$，该值仅作为初始值用于迭代，后续会通过迭代不断修正。
+
+  \item 通过去除 ICESat-2 衰减雪反向散射剖面的吸收影响来估计无吸收的雪反向散射路径长度分布可以标志为：
+  \begin{equation}
+  p(L = 2z)
+  =
+  \beta(L)\exp(k_a L)
+  \end{equation}
+
+  在此基础上，可推导雪反照率 $a$ 为：
+  \begin{equation}
+  a
+  =
+  \dfrac{\displaystyle \int_{0}^{\infty} \beta(L)\,\mathrm{d}L}
+  {\displaystyle \int_{0}^{\infty} P(L)\,\mathrm{d}L}
+  \end{equation}
+
+  \item 由路径长度分布推导雪深为：
+  \begin{equation}
+  H
+  =
+  \dfrac{L}{2}
+  =
+  \int_{0}^{\infty} L\, p(L)\,\mathrm{d}L
+  \end{equation}
+
+  \item 得出漫散射系数可表示为：
+  \begin{equation}
+  k_{sd}
+  =
+  \dfrac{\langle L^{2}\rangle}
+  {(\langle L\rangle/2)^{3}}
+  \end{equation}
+
+  \item 雪粒粒径 $R$ 和漫射衰减系数可利用雪反照率 $a$ 与吸收系数 $k_a$ 之间的经验关系推导得出：
+  \begin{equation}
+  R
+  =
+  \dfrac{1}{k_a}
+  \left(
+  \dfrac{1-a}{8.43}
+  \right)^{2}
+  \end{equation}
+
+  \item $k_d$ 可表示为：
+  \begin{equation}
+  k_d
+  =
+  0.65\left(\dfrac{k_a}{R}\right)^{1/2}
+  \end{equation}
+
+  漫射通量衰减系数 $k_d$ 是漫射系数 $k_{sd}$ 和吸收系数的函数：
+  \begin{equation}
+  k_d
+  =
+  \sqrt{3k_a(k_{sd}+k_a)}
+  \approx
+  \sqrt{3k_a k_{sd}}
+  \end{equation}
+
+  \item 使用步骤 5 的 $k_{sd}$ 和步骤 6 的漫射通量衰减系数 $k_d$
+  推导出新的吸收系数 $k_a'$：
+  \begin{equation}
+  k_a'
+  =
+  \dfrac{k_d^{2}}{3k_{sd}}
+  \end{equation}
+
+  \item 迭代条件设置为：
+  \begin{equation}
+  \mathrm{abs}(k_a - k_a') > 0.001
+  \end{equation}
 \end{enumerate}
 
-\subsection{技术路线}
-为便于实现与复现，本文将技术路线细化为“输入—处理—输出”的模块化链路：
-\begin{itemize}
-  \item \textbf{输入：} ATL03 光子高度与光子计数信息（必要时引入辅助大气/地表筛选信息）；
-  \item \textbf{处理模块 A（剖面与校正）：} 沿轨聚合 $\rightarrow$ 剖面构建 $\rightarrow$ 去卷积与背景扣除；
-  \item \textbf{处理模块 B（统计量提取）：} \(p(L)\) 构建 $\rightarrow$ 低阶矩与诊断指标计算；
-  \item \textbf{处理模块 C（反演与 QC）：} 矩方法雪深反演 $\rightarrow$ 多阶矩一致性迭代 $\rightarrow$ QC 与不确定性输出；
-  \item \textbf{输出：} 沿轨雪深产品（含质量标识、误差条带/不确定性估计）与验证报告。
-\end{itemize}
-
-\subsection{可行性分析}
-\paragraph{数据可行性}
-ICESat-2 ATL03 数据公开可获取，且已有研究表明：在海冰与陆地积雪区域，ICESat-2 回波剖面包含可用的多次散射长尾信息，可用于雪深反演与产品化\cite{Lu2022Unc}。
-
-\paragraph{方法可行性}
-该方法以辐射传输与随机游走统计规律为基础，通过路径长度分布矩与雪深之间的解析联系实现反演；并可利用不同阶矩结果的一致性作为内部稳健性检验，具备物理可解释性与可诊断性\cite{Hu2022}。
-
-\paragraph{主要不确定性与应对策略}
-\begin{itemize}
-  \item \textbf{地形/粗糙度：} 脉冲展宽可能造成雪深偏差。应对：引入展宽指标与地形筛选，并输出不确定性标识\cite{Lu2022Unc}。
-  \item \textbf{薄云/气溶胶：} 前向散射拉伸剖面导致“假深”。应对：优先晴空段并结合筛选与诊断分析\cite{Lu2022Unc}。
-  \item \textbf{日间背景噪声：} 背景计数增大会影响长尾统计。应对：背景扣除、稳健统计与适当沿轨平均，优先夜间观测\cite{Lu2022Unc}。
-\end{itemize}
+如果步骤 8 中满足小于阈值的条件，则 $k_a$ 被 $k_a'$ 替换，并重复过程 3 至过程 7，直到满足迭代条件的最小误差阈值。从而获得雪深、雪反照率、雪粒大小、吸收系数和漫散射系数的迭代数值结果。

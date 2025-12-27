@@ -1,22 +1,23 @@
-
 \cleardoublepage
 \newrefsection
 
-\chapter{外文翻译：基于 ICESat-2 激光雷达多重散射测量反演雪深——不确定性分析}
+\chapter{外文翻译}
 
-% 本章译自：Lu, Xiaomei et al. (2022) Deriving Snow Depth From ICESat-2 Lidar Multiple Scattering Measurements: Uncertainty Analyses.
-% Frontiers in Remote Sensing, 3:891481. doi:10.3389/frsen.2022.891481.
-% （原文为开放获取 CC BY；此处为中文翻译稿，供论文“外文翻译”使用。）
+% ====== 封面式信息块（对应你截图那页）======
+\section*{} % 不要标题，只占位，避免自动加字
+\vspace*{-1.2em}
 
-\section*{题目与作者信息（原文对应页首信息）}
-\addcontentsline{toc}{section}{题目与作者信息}
-\noindent\textbf{题目：}基于 ICESat-2 激光雷达多重散射测量反演雪深：不确定性分析
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+{\heiti 译文题目：} & 基于 ICESat-2 激光雷达多重散射测量反演雪深——不确定性分析 \\
+[1.2em]
+{\heiti 原文题目：} &  Deriving Snow Depth From ICESat-2 Lidar Multiple Scattering Measurements: Uncertainty Analyses\\
+[1.2em]
+{\heiti 原文来源：} &
+Lu X M, Hu Y X, Zeng X B, \textit{et al}. Deriving Snow Depth From ICESat-2 Lidar Multiple Scattering Measurements: Uncertainty Analyses[J].
+Frontiers in Remote Sensing, 2022, 3: 891481. DOI:10.3389/frsen.2022.891481.~\cite{Lu2022Unc} \\
+\end{tabularx}
 
-\noindent\textbf{作者：}Xiaomei Lu，Yongxiang Hu，Xubin Zeng，Snorre A.\ Stamnes，Thomas A.\ Neuman，Nathan T.\ Kurtz，Yuekui Yang，Peng-Wang Zhai，Meng Gao，Wenbo Sun，Kuanman Xu，Zhaoyan Liu，Ali H.\ Omar，Rosemary R.\ Baize，Laura J.\ Rogers，Brandon O.\ Mitchell，Knut Stamnes，Yuping Huang，Nan Chen，Carl Weimer，Jennifer Lee，Zachary Fair
-
-\noindent\textbf{期刊：}Frontiers in Remote Sensing（Frontiers in Remote Sensing）\\
-\noindent\textbf{收稿：}2022-03-07 \quad \textbf{接收：}2022-04-01 \quad \textbf{发表：}2022-04-29\\
-\noindent\textbf{DOI：}10.3389/frsen.2022.891481
+\vspace{4.0em}
 
 % =========================
 % 摘要（对应原文第 1 页摘要段落）
@@ -101,11 +102,19 @@ ICESat-2 观测信号 $\beta_m(z)$ 是正确后向散射信号 $\beta(z)$ 与探
 
 \subsection{基于 ICESat-2 数据的雪深反演}
 基于扩散理论与蒙特卡洛模拟，雪深（$h$）可由 ICESat-2 测得的雪中多重散射光子路径分布 $p(z)$ 的一阶矩（方法 1）、二阶矩（方法 2）与三阶矩（方法 3）推导得到［Hu Y. 等（2022）］：
-\begin{align}
-h &= \frac{\int_{-20}^{1} z\,p(z)\,dz}{\int_{-20}^{1} p(z)\,dz}, \tag{1}\\[2mm]
-h &= \left(\frac{4\int_{-20}^{1} z^2\,p(z)\,dz}{k_{sd}\int_{-20}^{1} p(z)\,dz}\right)^{1/3}, \tag{2}\\[2mm]
-h &= \left(\frac{8\int_{-20}^{1} z^3\,p(z)\,dz}{k_{sd}^{2}\int_{-20}^{1} p(z)\,dz}\right)^{1/5}, \tag{3}
-\end{align}
+
+\begin{equation}
+h = \frac{\int_{-20}^{1} z\,p(z)\,dz}{\int_{-20}^{1} p(z)\,dz}.
+\end{equation}
+
+\begin{equation}
+h = \left(\frac{4\int_{-20}^{1} z^2\,p(z)\,dz}{k_{sd}\int_{-20}^{1} p(z)\,dz}\right)^{1/3}.
+\end{equation}
+
+\begin{equation}
+h = \left(\frac{8\int_{-20}^{1} z^3\,p(z)\,dz}{k_{sd}^{2}\int_{-20}^{1} p(z)\,dz}\right)^{1/5}.
+\end{equation}
+
 其中 $p(z)=\beta(z)\exp(2k_a z)$ 为去除吸收影响后的雪后向散射路径长度分布；$\beta(z)$ 为 ICESat-2 观测到的雪后向散射信号（如图~\ref{fig:fig1} 与图~\ref{fig:fig2}）在去卷积之后的结果；$k_a$ 为雪的吸收系数；$z$ 为雪面以下深度；$k_{sd}$ 为雪的漫散射系数，可由雪反照率与吸收系数得到［Bohren 和 Barkstrom（1974）；Hu Y. 等（2022）］。本文采用主雪面下 20\,m 至雪面上 1\,m 的积分范围（例如图~\ref{fig:fig1} 红线）。当雪被下传的次表层光子更多时，积分下限可大于 20\,m。532\,nm 下雪反照率可由 ICESat-2 激光雷达测量推导为：
 \[
 \alpha = \frac{\int \beta(z)\,dz}{\int p(z)\,dz}.
@@ -159,7 +168,7 @@ h &= \left(\frac{8\int_{-20}^{1} z^3\,p(z)\,dz}{k_{sd}^{2}\int_{-20}^{1} p(z)\,d
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.92\textwidth]{figure/translate/figure6.jpg}
-  \caption{2020 年 3 月 27 日三种来源的雪深对比：ICESat-2（蓝色）、亚利桑那大学逐日 4\,km 格点雪产品（红色）以及加拿大气象中心逐日 24\,km 格点雪产品（绿色）。ICESat-2 地面轨迹在图~\ref{fig:fig7}A 中以黑色实线表示。注意三幅面板的横轴位置不同，对应 ICESat-2 三束强束在横向方向相距约 3.3\,km。}
+  \caption{2020 年 3 月 27 日三种来源的雪深对比：ICESat-2（蓝色）、亚利桑那大学逐日 4\,km 格点雪产品（red）以及加拿大气象中心逐日 24\,km 格点雪产品（绿色）。ICESat-2 地面轨迹在图~\ref{fig:fig7}A 中以黑色实线表示。注意三幅面板的横轴位置不同，对应 ICESat-2 三束强束在横向方向相距约 3.3\,km。}
   \label{fig:fig6}
 \end{figure}
 
@@ -217,28 +226,7 @@ g(z) = A\exp\!\left[-\frac{(z-z_0)^2}{2\sigma^2}\right],
 
 凭借更小的足迹、测得光子的高质量与高精度，在 ICESat-2 可观测区域，ICESat-2 可提供厘米级精度、米级空间分辨率的雪深信息。ICESat-2 可为山区季节性雪变化与演化提供前所未有的记录。此外，ICESat-2 雪深结果有潜力支持并改进 ICESat-2 海冰厚度反演。本文结果强烈支持将 ICESat-2 激光雷达测量用于全球雪深研究。
 
-% =========================
-% 数据可用性声明、作者贡献、基金与致谢（对应原文第 9-11 页）
-% =========================
-\section{数据可用性声明}
-本文研究中呈现的原始贡献已包含在文章/补充材料中；进一步咨询可联系通讯作者。
-
-\section{作者贡献}
-作者确认对论文的贡献如下：研究构思与设计：YH 与 XL；初稿撰写：XL；结果分析与解释：所有作者共同完成。所有作者审阅了结果并批准了稿件最终版本。
-
-\section{经费资助}
-第一作者经费由美国国家航空航天局 ICESat-2 项目资助（资助号 80NSSC21K0910）。
-
-\section{致谢}
-作者感谢美国国家航空航天局 ICESat-2 项目、美国国家航空航天局遥感理论项目，以及美国国家航空航天局先进空间技术办公室（ESTO）的创新仪器计划（IIP）对本研究的支持。
-
-\section*{参考文献（原文列出，建议以 biblatex 统一管理）}
-\addcontentsline{toc}{section}{参考文献（原文列出）}
-\noindent 本文译稿对应原文参考文献条目较多，建议在学位论文中通过 \texttt{biblatex} 数据库统一录入与排版；此处不逐条翻译参考文献题名与期刊信息，以保持引用规范与可检索性。
-
-\noindent 参考~\cite{zjuthesisrules,zjuthesis}
-
 \begingroup
-\singlespacing
+\linespread{1.0}\selectfont
 \printbibliography[title={外文翻译参考文献}]
 \endgroup
