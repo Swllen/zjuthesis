@@ -1,29 +1,20 @@
 \section{项目的主要内容和技术路线}
 \subsection{主要研究内容}
-\begin{enumerate}
-  \item \textbf{数据获取与研究区设定：}
-  获取 ICESat-2 ATL03 光子数据，优先选取夜间观测以降低太阳背景噪声；选择典型海冰区与陆地（含山地/积雪区）作为实验研究区，并结合辅助信息进行大气与地表条件筛选\cite{Lu2022Unc}。
+围绕星载光子计数激光雷达多次散射雪深反演中的关键问题，本研究主要包括以下三个方面的内容：
 
-  \item \textbf{剖面构建与预处理：}
-  沿轨累积一定数量脉冲/光子以提升信噪比，构建包含雪面峰值与次表层长尾的垂向回波剖面；实施背景扣除与异常光子过滤，得到可用于路径长度分布估计的剖面\cite{Lu2022Unc}。
+（1）多次散射回波的物理仿真与误差机理分析  
+通过构建光子计数激光雷达在雪层中的辐射传输仿真模型，系统分析激光器参数、探测器响应特性及环境因素对回波剖面形态和路径长度分布的影响，为反演算法提供物理约束和参数参考。
 
-  \item \textbf{仪器响应校正（去卷积）：}
-  将观测剖面表示为真实回波与系统冲激响应的卷积，采用去卷积方法削弱 afterpulse 等伪影对次表层长尾的影响，以避免路径长度分布矩被系统性拉长\cite{Lu2022Unc}。
+（2）基于统计矩的雪深反演方法改进  
+在已有路径长度统计矩反演框架基础上，结合仿真结果和观测特性，对反演模型与参数求解过程进行优化，提高算法在高噪声和复杂雪况条件下的稳健性与精度。
 
-  \item \textbf{路径长度分布与矩计算：}
-  将校正后的垂向剖面转换为回散射路径长度分布 \(p(L)\)（可根据需要加入弱吸收校正），计算一阶、二阶与三阶矩作为反演核心观测量\cite{Hu2022}。
+（3）多源数据对比验证与不确定性评估  
+利用机载、地面观测或权威雪深产品，对反演结果开展多区域、多雪况的对比验证，定量评估反演精度和适用范围，并分析主要误差来源与不确定性特征。
 
-  \item \textbf{矩方法雪深反演与参数迭代：}
-  利用 \(\langle L\rangle\)、\(\langle L^2\rangle\)、\(\langle L^3\rangle\) 与雪深 \(H\) 的解析关系分别估计雪深，并通过迭代使多种矩方法结果一致以约束吸收/散射参数，提高反演稳健性\cite{Hu2022}。
-
-  \item \textbf{不确定性分析与质量控制：}
-  重点评估（i）粗糙度/坡度导致的脉冲展宽，（ii）大气前向散射，（iii）日间背景噪声与暗噪声等误差来源；制定 QC 阈值并输出不确定性标识\cite{Lu2022Unc}。
-
-  \item \textbf{对比验证与效果评估：}
-  与独立参考数据（如机载/地面观测或权威格网产品）开展对比验证，计算偏差、RMSE、相关系数等统计指标，形成可复用的验证与诊断框架，并总结适用范围与改进方向\cite{Lu2022Unc}。
-\end{enumerate}
 
 \subsection{技术路线}
+
+\subsubsection{多次散射回波的仿真模型}
 本研究利用子午面法和半解析蒙特卡洛模型相结合，可构建半解析蒙特卡洛偏振辐射传输模型(Semianalytic Monte Carlo polarized radiative transfer model, SALMONP)，以此仿真激光雷达的偏振回波信号。图~\ref{半解析蒙特卡罗偏振激光雷达辐射传仿真模型流程图} 展示了该半解析蒙特卡洛仿真模型的基本流程图。
 
 \begin{figure}[htbp]
@@ -39,133 +30,6 @@
 
 在多次散射模拟中,对光子运动状态主要包含以下两个方向,即散射角及运动方向的确定以及散射光偏振的确定。
 
-\subsubsection{A 散射角及运动方向的确定}
-光子的散射过程主要包括产生随机的运动方向和确定散射光的偏振状态。如图~\ref{子午面几何示意图}所示，光子的散射方向由散射角 $\theta$ 和方位角 $\alpha_1$(即散射前子午面与散射面之间夹角)确定。在非偏振激光雷达辐射传输的MC仿真中，散射角可通过对散射相函数的随机抽样获得，而方位角可以看作是与散射角无关的均匀分布在 $[0, 2\pi]$ 之间的随机数。但对于偏振光而言，其散射方向的确定则相对复杂。在偏振MC仿真中是根据散射相函数和拒绝性采样算法来确定的。对于线偏振光来说，其相函数与散射角 $\theta$ 和方位角 $\alpha_1$ 都相关，斯托克矢量为 $[I_0, Q_0, U_0, V_0]^T$ 的入射光相函数 $f(\theta, \alpha_1)$ 的表达式如下:
-\begin{equation}
-    f(\theta, \alpha_1) = M_{11}(\theta) I_0 + M_{12}(\theta)(Q_0 \cos 2\alpha_1 + U_0 \sin 2\alpha_1)
-\end{equation}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.5\textwidth]{figure/proposal/子午面.jpg}
-    \caption{子午面几何示意图。OP1和OP2分别为散射前后光子的运动方向，NOP1和NOP2分别为散射前后的子午面。}
-    \label{子午面几何示意图}
-\end{figure}
-
-拒绝性采样法的原理为：取 $\theta_{rand}$ 为 0 到 $\pi$ 之间均匀分布的随机数，$\alpha_{rand}$ 为 0 到 $2\pi$ 之间均匀分布的随机数，$\xi_{rand}$ 为 0 到 1 之间均匀分布的随机数，当 $f(\theta_{rand}, \alpha_{rand}) / f_{max} \geq \xi_{rand}$ 时，$\theta_{rand}$ 和 $\alpha_{rand}$ 即为新的散射角度。
-
-在获得散射角 $\theta$ 和方位角 $\alpha_1$ 的基础上，由球面三角形余弦定理可得
-\begin{equation}
-  \cos \vartheta_2
-  =
-  \cos \vartheta_1 \cos \theta
-  +
-  \sin \vartheta_1 \sin \theta \cos \alpha_1
-\end{equation}
-
-\begin{equation}
-  \varphi_2 =
-  \begin{cases}
-    \varphi_1 - \arccos
-    \left(
-    \dfrac{\cos \theta - \cos \vartheta_1 \cos \vartheta_2}
-    {\sin \vartheta_1 \sin \vartheta_2}
-    \right),
-    & (0 < \alpha_1 < \pi), \\[10pt]
-    \varphi_1 + \arccos
-    \left(
-    \dfrac{\cos \theta - \cos \vartheta_1 \cos \vartheta_2}
-    {\sin \vartheta_1 \sin \vartheta_2}
-    \right),
-    & (\pi < \alpha_1 < 2\pi),
-  \end{cases}
-\end{equation}
-
-其中，$\vartheta_1$ 和 $\vartheta_2$ 分别为入射光和散射光的天顶角，
-$\varphi_1$ 和 $\varphi_2$ 分别为入射光和散射光的方位角。
-根据 $\vartheta_2$ 和 $\varphi_2$ 可以得到散射后的运动方向。
-
-\subsubsection{B 散射光偏振状态的确定}
-当使用拒绝性采样方法确定了光子的散射角和方位角后，要实现光子的散射过程需要对斯托克斯矢量进行3次转换操作。首先是将斯托矢量的参考坐标系旋转至散射面。偏振光场初始子午面为NOP1，散射面即积雪粒子相矩阵的参考面P1OP2。将斯托克斯矢量与旋转矩阵 $R(-\alpha_1)$ 相乘，即可得到新的斯托克斯矢量。该旋转矩阵的作用相当于将斯托克斯矢量逆时针旋转角度 $\alpha_1$，将参考面旋转至散射面。第二步即将光子的斯托克斯矢量与积雪的散射相矩阵 $M(\theta)$ 相乘。最后，需要将斯托克斯矢量逆时针旋转 $\alpha_2$ 角，使其参考系旋转到散射光的子午面NOP2，$\alpha_2$ 角的求解方法为:
-\begin{equation}
-\alpha_2 =
-\begin{cases}
-\arccos
-\left(
-\dfrac{\cos \vartheta_1 - \cos \vartheta_2 \cos \theta}
-{\sin \vartheta_2 \sin \theta}
-\right),
-& (0 < \alpha_1 < \pi), \\[10pt]
-2\pi - \arccos
-\left(
-\dfrac{\cos \vartheta_1 - \cos \vartheta_2 \cos \theta}
-{\sin \vartheta_2 \sin \theta}
-\right),
-& (\pi < \alpha_1 < 2\pi),
-\end{cases}
-\end{equation}
-
-由此可得到，发射散射后光场的斯托克斯矢量 $\mathbf{S}_{\mathrm{new}}$ 为
-\begin{equation}
-\mathbf{S}_{\mathrm{new}}
-=
-R(\pi - \alpha_2)\, M(\theta)\, R(-\alpha_1)\, \mathbf{S}.
-\end{equation}
-
-
-其中，分支1的光子包需要根据其权重判断其生存状态，即如果光子包的权重太小，低于我们设定的初始值，则引入俄罗斯轮盘赌程序，如果光子包的生存状态为“Dead”则停止对该光子包的追迹，反之则回到步长确定的步骤继续光子散射过程。重复此流程直到遍历所有初设光子。
-
-其中，半解析回波接收部分的光子包将通过分支2的程序，同样也需要经历上述三次对斯托克斯矢量的操作。相关的计算过程可表示为：
-\begin{equation}
-\mathbf{S}_{\mathrm{sig}}
-=
-R(\pi - \alpha_2')\, M(\theta)\, R(-\alpha_1')\, \mathbf{S} \times w_s ,
-\end{equation}
-
-\begin{equation}
-\begin{cases}
-\displaystyle
-\cos \alpha_1'
-=
-\dfrac{u z_{\mathrm{sca}} - u z_{\mathrm{inc}} \cos \theta}
-{\sqrt{1 - u z_{\mathrm{inc}}^{2}} \, \sin \theta}, \\[10pt]
-\displaystyle
-\cos \alpha_2'
-=
-\dfrac{u z_{\mathrm{inc}} - u z_{\mathrm{sca}} \cos \theta}
-{\sqrt{1 - u z_{\mathrm{sca}}^{2}} \, \sin \theta}.
-\end{cases}
-\end{equation}
-
-计算过程中可能会出现以下几个特殊情况：
-
-当散射角 $\theta$ 为 $0$，式(9)将变为：
-\begin{equation}
-\cos \alpha_1' = 1, \qquad \cos \alpha_2' = 1 .
-\end{equation}
-
-当 $u z_{\mathrm{inc}} = 1$，即 $\sqrt{1 - u z_{\mathrm{inc}}^{2}} = 0$，式(9)将变为：
-\begin{equation}
-\begin{cases}
-\cos \alpha_1' = - u z_{\mathrm{inc}} \cos (\varphi_{\mathrm{sca}} - \varphi_{\mathrm{inc}}), \\[6pt]
-\cos \alpha_2' = u z_{\mathrm{inc}} .
-\end{cases}
-\end{equation}
-
-当 $u z_{\mathrm{sca}} = 1$，即 $\sqrt{1 - u z_{\mathrm{sca}}^{2}} = 0$，式(9)将变为：
-\begin{equation}
-\begin{cases}
-\cos \alpha_1' = u z_{\mathrm{sca}}, \\[6pt]
-\cos \alpha_2' = - u z_{\mathrm{sca}} \cos (\varphi_{\mathrm{sca}} - \varphi_{\mathrm{inc}}) .
-\end{cases}
-\end{equation}
-
-
-在进行半解析光子接收时，如果该部分光子与探测器的连线不与 $z$ 轴重合的话，其斯托克斯矢量的参考面与探测器坐标系的参考子午面即XOZ平面会存在一定的夹角 $\phi$，回到探测器的光子的斯托克斯矢量需要乘以旋转矩阵 $R(\phi)$，其中 $\phi$ 角可计算得到；然后将该部分光子的权重加到累计的回波信号中。通过对大量的光子进行追迹，即可得到最终的偏振激光雷达回波信号。
-
-通常，一个激光脉冲中的光子能回到探测器的概率很低，随着光学厚度的增加概率还会下降。以上半解析MC计算过程的引入将会大大提高模型的收敛速度。通过该半解析蒙特卡洛模型，可以快速获得激光的实际光程，从而研究在不同雪面处的多次散射过程，获得更加准确的积雪激光雷达信号，从而反演出积雪雪深与其他参数。
-
-\subsubsection{单光子探测器响应模型}
 如图~\ref{单光子探测器响应模型}所示，随着返回能量的强度增加，实际探测光子数和预期光子数存在着越来越大的误差。该误差的来源是光子计数探测器的死时间效应，即导致光子计数探测器在一个死时间内最多能探测到一个光子，进而在返回能量增加时导致接收光子数小于实际光子数。
 
 \begin{figure}[htbp]
@@ -411,3 +275,143 @@ a
 \end{enumerate}
 
 如果步骤 8 中满足小于阈值的条件，则 $k_a$ 被 $k_a'$ 替换，并重复过程 3 至过程 7，直到满足迭代条件的最小误差阈值。从而获得雪深、雪反照率、雪粒大小、吸收系数和漫散射系数的迭代数值结果。
+
+\subsubsection{验证评估与不确定性分析}
+
+为评估所构建雪深反演方法的精度、稳定性及适用范围，研究拟开展系统的多源数据对比验证与不确定性分析工作。验证对象不仅包括反演结果的绝对精度，还涵盖算法在不同雪况、地表条件和噪声水平下的鲁棒性表现。
+
+在验证数据选择方面，将优先采用具有较高可信度的独立雪深观测数据作为参考，包括机载激光雷达获取的雪深数据（如 Operation IceBridge 雪深产品）、已有地面或机载实测雪深数据，以及在条件允许的情况下选取权威发布的雪深产品作为辅助对比。通过空间和时间匹配，将反演得到的雪深结果与参考数据进行一一对应，为定量验证提供基础。
+
+在精度评估方面，将采用偏差（Bias）、均方根误差（RMSE）和相关系数（R）等统计指标，对反演雪深与参考数据之间的一致性进行定量分析。同时，针对不同雪深等级和不同地表类型（如平坦海冰与起伏较大的区域），分组评估反演性能，以分析算法在不同应用场景下的适用性。
+
+在稳定性与不确定性分析方面，将结合仿真结果与实际观测数据，对影响雪深反演精度的主要因素进行系统评估。例如，分析太阳背景噪声强度、探测器 afterpulse 伪影、回波剖面提取阈值以及统计矩计算参数等因素变化对反演结果的影响，定量刻画各类误差源对雪深不确定性的贡献。
+
+通过上述多源验证与不确定性分析，明确所提出方法相对于已有统计矩反演方法在精度和稳健性方面的改进程度，并为后续方法的推广应用和参数选取提供依据，从而形成“仿真—反演—验证”相互支撑的完整研究闭环。
+
+
+% \subsubsection{A 散射角及运动方向的确定}
+% 光子的散射过程主要包括产生随机的运动方向和确定散射光的偏振状态。如图~\ref{子午面几何示意图}所示，光子的散射方向由散射角 $\theta$ 和方位角 $\alpha_1$(即散射前子午面与散射面之间夹角)确定。在非偏振激光雷达辐射传输的MC仿真中，散射角可通过对散射相函数的随机抽样获得，而方位角可以看作是与散射角无关的均匀分布在 $[0, 2\pi]$ 之间的随机数。但对于偏振光而言，其散射方向的确定则相对复杂。在偏振MC仿真中是根据散射相函数和拒绝性采样算法来确定的。对于线偏振光来说，其相函数与散射角 $\theta$ 和方位角 $\alpha_1$ 都相关，斯托克矢量为 $[I_0, Q_0, U_0, V_0]^T$ 的入射光相函数 $f(\theta, \alpha_1)$ 的表达式如下:
+% \begin{equation}
+%     f(\theta, \alpha_1) = M_{11}(\theta) I_0 + M_{12}(\theta)(Q_0 \cos 2\alpha_1 + U_0 \sin 2\alpha_1)
+% \end{equation}
+
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{figure/proposal/子午面.jpg}
+%     \caption{子午面几何示意图。OP1和OP2分别为散射前后光子的运动方向，NOP1和NOP2分别为散射前后的子午面。}
+%     \label{子午面几何示意图}
+% \end{figure}
+
+% 拒绝性采样法的原理为：取 $\theta_{rand}$ 为 0 到 $\pi$ 之间均匀分布的随机数，$\alpha_{rand}$ 为 0 到 $2\pi$ 之间均匀分布的随机数，$\xi_{rand}$ 为 0 到 1 之间均匀分布的随机数，当 $f(\theta_{rand}, \alpha_{rand}) / f_{max} \geq \xi_{rand}$ 时，$\theta_{rand}$ 和 $\alpha_{rand}$ 即为新的散射角度。
+
+% 在获得散射角 $\theta$ 和方位角 $\alpha_1$ 的基础上，由球面三角形余弦定理可得
+% \begin{equation}
+%   \cos \vartheta_2
+%   =
+%   \cos \vartheta_1 \cos \theta
+%   +
+%   \sin \vartheta_1 \sin \theta \cos \alpha_1
+% \end{equation}
+
+% \begin{equation}
+%   \varphi_2 =
+%   \begin{cases}
+%     \varphi_1 - \arccos
+%     \left(
+%     \dfrac{\cos \theta - \cos \vartheta_1 \cos \vartheta_2}
+%     {\sin \vartheta_1 \sin \vartheta_2}
+%     \right),
+%     & (0 < \alpha_1 < \pi), \\[10pt]
+%     \varphi_1 + \arccos
+%     \left(
+%     \dfrac{\cos \theta - \cos \vartheta_1 \cos \vartheta_2}
+%     {\sin \vartheta_1 \sin \vartheta_2}
+%     \right),
+%     & (\pi < \alpha_1 < 2\pi),
+%   \end{cases}
+% \end{equation}
+
+% 其中，$\vartheta_1$ 和 $\vartheta_2$ 分别为入射光和散射光的天顶角，
+% $\varphi_1$ 和 $\varphi_2$ 分别为入射光和散射光的方位角。
+% 根据 $\vartheta_2$ 和 $\varphi_2$ 可以得到散射后的运动方向。
+
+% \subsubsection{B 散射光偏振状态的确定}
+% 当使用拒绝性采样方法确定了光子的散射角和方位角后，要实现光子的散射过程需要对斯托克斯矢量进行3次转换操作。首先是将斯托矢量的参考坐标系旋转至散射面。偏振光场初始子午面为NOP1，散射面即积雪粒子相矩阵的参考面P1OP2。将斯托克斯矢量与旋转矩阵 $R(-\alpha_1)$ 相乘，即可得到新的斯托克斯矢量。该旋转矩阵的作用相当于将斯托克斯矢量逆时针旋转角度 $\alpha_1$，将参考面旋转至散射面。第二步即将光子的斯托克斯矢量与积雪的散射相矩阵 $M(\theta)$ 相乘。最后，需要将斯托克斯矢量逆时针旋转 $\alpha_2$ 角，使其参考系旋转到散射光的子午面NOP2，$\alpha_2$ 角的求解方法为:
+% \begin{equation}
+% \alpha_2 =
+% \begin{cases}
+% \arccos
+% \left(
+% \dfrac{\cos \vartheta_1 - \cos \vartheta_2 \cos \theta}
+% {\sin \vartheta_2 \sin \theta}
+% \right),
+% & (0 < \alpha_1 < \pi), \\[10pt]
+% 2\pi - \arccos
+% \left(
+% \dfrac{\cos \vartheta_1 - \cos \vartheta_2 \cos \theta}
+% {\sin \vartheta_2 \sin \theta}
+% \right),
+% & (\pi < \alpha_1 < 2\pi),
+% \end{cases}
+% \end{equation}
+
+% 由此可得到，发射散射后光场的斯托克斯矢量 $\mathbf{S}_{\mathrm{new}}$ 为
+% \begin{equation}
+% \mathbf{S}_{\mathrm{new}}
+% =
+% R(\pi - \alpha_2)\, M(\theta)\, R(-\alpha_1)\, \mathbf{S}.
+% \end{equation}
+
+
+% 其中，分支1的光子包需要根据其权重判断其生存状态，即如果光子包的权重太小，低于我们设定的初始值，则引入俄罗斯轮盘赌程序，如果光子包的生存状态为“Dead”则停止对该光子包的追迹，反之则回到步长确定的步骤继续光子散射过程。重复此流程直到遍历所有初设光子。
+
+% 其中，半解析回波接收部分的光子包将通过分支2的程序，同样也需要经历上述三次对斯托克斯矢量的操作。相关的计算过程可表示为：
+% \begin{equation}
+% \mathbf{S}_{\mathrm{sig}}
+% =
+% R(\pi - \alpha_2')\, M(\theta)\, R(-\alpha_1')\, \mathbf{S} \times w_s ,
+% \end{equation}
+
+% \begin{equation}
+% \begin{cases}
+% \displaystyle
+% \cos \alpha_1'
+% =
+% \dfrac{u z_{\mathrm{sca}} - u z_{\mathrm{inc}} \cos \theta}
+% {\sqrt{1 - u z_{\mathrm{inc}}^{2}} \, \sin \theta}, \\[10pt]
+% \displaystyle
+% \cos \alpha_2'
+% =
+% \dfrac{u z_{\mathrm{inc}} - u z_{\mathrm{sca}} \cos \theta}
+% {\sqrt{1 - u z_{\mathrm{sca}}^{2}} \, \sin \theta}.
+% \end{cases}
+% \end{equation}
+
+% 计算过程中可能会出现以下几个特殊情况：
+
+% 当散射角 $\theta$ 为 $0$，式(9)将变为：
+% \begin{equation}
+% \cos \alpha_1' = 1, \qquad \cos \alpha_2' = 1 .
+% \end{equation}
+
+% 当 $u z_{\mathrm{inc}} = 1$，即 $\sqrt{1 - u z_{\mathrm{inc}}^{2}} = 0$，式(9)将变为：
+% \begin{equation}
+% \begin{cases}
+% \cos \alpha_1' = - u z_{\mathrm{inc}} \cos (\varphi_{\mathrm{sca}} - \varphi_{\mathrm{inc}}), \\[6pt]
+% \cos \alpha_2' = u z_{\mathrm{inc}} .
+% \end{cases}
+% \end{equation}
+
+% 当 $u z_{\mathrm{sca}} = 1$，即 $\sqrt{1 - u z_{\mathrm{sca}}^{2}} = 0$，式(9)将变为：
+% \begin{equation}
+% \begin{cases}
+% \cos \alpha_1' = u z_{\mathrm{sca}}, \\[6pt]
+% \cos \alpha_2' = - u z_{\mathrm{sca}} \cos (\varphi_{\mathrm{sca}} - \varphi_{\mathrm{inc}}) .
+% \end{cases}
+% \end{equation}
+
+
+% 在进行半解析光子接收时，如果该部分光子与探测器的连线不与 $z$ 轴重合的话，其斯托克斯矢量的参考面与探测器坐标系的参考子午面即XOZ平面会存在一定的夹角 $\phi$，回到探测器的光子的斯托克斯矢量需要乘以旋转矩阵 $R(\phi)$，其中 $\phi$ 角可计算得到；然后将该部分光子的权重加到累计的回波信号中。通过对大量的光子进行追迹，即可得到最终的偏振激光雷达回波信号。
+
+% 通常，一个激光脉冲中的光子能回到探测器的概率很低，随着光学厚度的增加概率还会下降。以上半解析MC计算过程的引入将会大大提高模型的收敛速度。通过该半解析蒙特卡洛模型，可以快速获得激光的实际光程，从而研究在不同雪面处的多次散射过程，获得更加准确的积雪激光雷达信号，从而反演出积雪雪深与其他参数。
+
