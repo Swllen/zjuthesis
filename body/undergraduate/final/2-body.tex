@@ -1,85 +1,237 @@
 \cleardoublepage
 
-\section{Overleaf 使用注意事项}
+\section{基于光子计数激光雷达的雪深反演方法}
 
-如果你在Overleaf上编译本模板，请注意如下事项~\cite{zjuthesis}：
+\subsection{数据基础与总体思路}
+本文以 ICESat-2/ATLAS 的 ATL03 全球地理定位光子产品作为基础输入数据。ATLAS 是工作于 532\,nm 波段的星载光子计数激光雷达，具有高重复频率和高灵敏度的特点，能够在沿轨方向提供高精度光子级观测信息\citep{Zhu2020_ICESat2_ATLAS_Review,Smith2019_ICESat2_HeightAlgorithm}。与传统依赖雪期和无雪期高程差分的方法不同，本文关注雪层内部多次散射在回波剖面中形成的次表层长尾信号，利用其蕴含的路径长度分布信息直接反演雪深\citep{Hu2022,Lu2022_DerivingSnowDepth}。
 
-\begin{itemize}
-    \item 删除根目录的 ``.latexmkrc'' 文件，否则编译失败且不报任何错误
-    \item 字体有版权所以本模板不能附带字体，请务必手动上传字体文件，并在各个专业模板下手动指定字体。
-        具体方法参照 GitHub 主页的说明。
-    \item 当前（2019年9月2日）的Overleaf使用TexLive 2017进行编译，但一些伪粗体复制乱码的问题需要TexLive 2019版本来解决。
-        所以各位同学可以在Overleaf上编写论文，但务必使用本地的TexLive 2019来进行最终编译，以免产生查重相关问题。
-        具体说明参照 GitHub 主页。
-\end{itemize}
-
-\subsection{节标题}
-
-\subsubsection{小节标题}
-
-\par 我们可以用includegraphics来插入现有的jpg等格式的图片，如\autoref{fig:zju-logo}。
+如\autoref{fig:method-workflow}所示，本文方法链可概括为四个相互衔接的模块。第一模块为 ATL03 光子输入与预处理，完成强束光子读取、研究区域筛选和基础质量控制。第二模块为剖面处理与去卷积校正，围绕主表面识别、表面参考基准建立以及系统响应校正，构建可用于物理反演的后向散射剖面。第三模块为基于多次散射路径长度分布的雪深反演，通过吸收校正、统计矩计算和参数迭代求解雪深。第四模块为结果验证与误差分析，对反演结果与外部雪深数据进行比较，并分析不同误差源的影响。后续各小节按这一总体流程依次展开。
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=.4\linewidth]{logo/zju}
-    \caption{\label{fig:zju-logo}浙江大学LOGO}
+    \includegraphics[width=0.98\linewidth]{final/snow_retrieval_pipeline}
+    \caption{\label{fig:method-workflow}基于多次散射物理的 ICESat-2 雪深反演总体流程图}
 \end{figure}
 
-\par 如\autoref{tab:sample}所示，这是一张自动调节列宽的表格。
+\subsection{ATL03 光子数据读取与预处理}
+本小节对应\autoref{fig:method-workflow}中的第一模块。ATL03 产品以光子事件为基本观测单元，记录了光子的时间、地理位置和高程等信息。本文首先针对 ATL03 的强束数据进行读取，并提取后续处理所需的主要变量，包括光子高程、时间、经纬度、沿轨距离以及背景噪声估计等。为避免低质量数据对后续回波剖面构建造成干扰，在读取阶段即对异常光子和明显失真的观测段进行筛除，并根据太阳高度角区分昼夜条件，以便在后续误差分析中考虑背景噪声差异。
+
+在进入剖面构建之前，本文还对研究区域进行空间约束，并利用高程中位数附近的合理范围进行粗筛选，以去除与主表面相距过大的离散噪声光子。设原始光子高程为 \(h_i\)，时间为 \(t_i\)，经纬度分别为 \((\varphi_i,\lambda_i)\)。经过经纬度范围筛选与高程阈值约束后，可得到用于后续分析的有效光子集合。该步骤的主要目的在于降低极端离群点对表面识别和统计分箱的影响，为构建稳定的后向散射剖面提供更干净的数据基础。
+
+\subsection{剖面处理与后向散射剖面构建}
+本小节对应\autoref{fig:method-workflow}中的第二模块前半部分。雪深反演的关键前提是确定稳定的参考表面位置。本文采用基于时间和高程二维统计直方图的主表面识别方法。具体而言，先将原始光子时间转换为相对时间 \(t_r=t_i-t_0\)，再在 \((t_r,h)\) 空间中以细时间步长和细高程步长构建二维直方图。对于每一个时间分箱，取计数最大的高程位置作为初始表面估计值。由于原始峰值序列中仍可能存在跳变和局部异常，本文进一步通过缺测插值、异常值剔除和局部回归平滑获得连续表面 \(h_s(t)\)。
+
+在此基础上，对每一个光子进行表面对齐处理，即
+\begin{equation}
+    h'_i = h_i - h_s(t_i),
+\end{equation}
+其中 \(h'_i\) 为对齐后的相对高程。经过该变换后，主表面附近对应 \(h'_i=0\)，表面上方为大气和背景区，表面下方则对应雪层内部多次散射引起的延迟回波。为与后续雪深求解保持一致，本文进一步将深度定义为
+\begin{equation}
+    z_i = -h'_i.
+\end{equation}
+这样，\(z_i>0\) 表示位于表面以下的次表层区域，便于将回波解释为光子在雪层中的传播路径响应。
+
+在剖面构建阶段，本文按照固定深度分辨率与时间分辨率对光子进行统计分箱。在本文设置中，垂向分辨率取 \(0.15\,\text{m}\)，细时间分辨率取 \(0.001\,\text{s}\)，从而形成二维计数矩阵。考虑到单脉冲光子计数信号噪声较大，本文进一步沿轨采用滑动窗口对二维矩阵进行聚合平均，窗口长度取 \(2\,\text{s}\)，步长取 \(0.5\,\text{s}\)。对于每一个滑动窗口，计算该窗口内各深度分箱的平均计数，得到一条沿轨局部平均后的垂向后向散射剖面。该处理能够在保持一定空间分辨率的同时有效提升信噪比，为后续去卷积和雪深反演提供稳定输入。
+
+剖面构建完成后，还需对背景噪声进行估计与扣除。本文利用远离表面的深层区间估计背景噪声水平，并将其从每条剖面中减去。经扣除后，若某些深度位置的计数小于或等于零，则将其视为无效值。经过上述处理，最终得到用于雪深反演的表面对齐后向散射剖面 \(S(z)\)。
+
+\subsection{表面参考基准与去卷积处理}
+本小节对应\autoref{fig:method-workflow}中的第二模块后半部分。ICESat-2 的观测剖面不仅包含真实的雪层散射响应，还会受到仪器系统响应函数的展宽作用影响，尤其在主表面附近和次表层浅层区域，afterpulse 与脉冲拖尾会显著改变回波形态\citep{Lu2022Unc}。如果不对这种仪器效应进行校正，基于路径长度统计特征的雪深反演会产生系统偏差。因此，本文在雪深求解前引入系统响应去卷积步骤，以恢复更接近真实散射结构的剖面信号。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.78\linewidth]{final/detector_response_model}
+    \caption{\label{fig:detector-response-model}单光子探测器响应模型示意图}
+\end{figure}
+
+设观测剖面为 \(S_o(z)\)，真实散射剖面为 \(S_c(z)\)，系统响应函数为 \(R(z)\)，则观测过程可写为
+\begin{equation}
+    S_o(z)=R(z)\otimes S_c(z)+\varepsilon(z),
+\end{equation}
+其中 \(\otimes\) 表示卷积运算，\(\varepsilon(z)\) 为观测噪声项。本文使用预先标定的系统响应函数，对表面以下剖面进行离散去卷积求解。离散形式下，可将卷积过程表示为
+\begin{equation}
+    \mathbf{F}\mathbf{S}_c=\mathbf{S}_o,
+\end{equation}
+其中 \(\mathbf{F}\) 为由系统响应函数构成的下三角卷积矩阵，\(\mathbf{S}_o\) 和 \(\mathbf{S}_c\) 分别表示观测剖面与校正后剖面。通过求解该线性方程组，可获得去卷积后的校正信号。对于去卷积后出现的非物理负值，本文将其视为无效值，不再参与后续统计矩计算。
+
+去卷积步骤的核心作用在于削弱仪器展宽导致的浅层虚假信号，使回波衰减形态更加接近雪层内部真实的多次散射分布。与此同时，表面参考基准的稳定建立能够保证剖面零点的一致性，为后续多次散射路径统计提供统一的深度参照。与仅依赖原始剖面进行拟合相比，经过基准校正和去卷积后的信号在物理解释上更符合路径长度分布理论，也更有利于后续吸收项校正与雪深稳定求解。
+
+\subsection{基于多次散射路径长度分布的雪深反演}
+本小节对应\autoref{fig:method-workflow}中的第三模块。在 532\,nm 波段下，积雪可近似视为弱吸收、强散射介质。激光光子进入雪层后会经历多次散射并重新返回传感器，其在雪层中的传播路径并非单一几何距离，而是服从某种统计分布。Hu 等的研究表明，这一路径长度分布可近似由 Gamma 分布描述，并且其低阶统计矩与雪深之间存在稳定关系\citep{Hu2022}。本文据此采用基于路径长度统计矩的雪深反演思路。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.50\linewidth]{final/pathlength_distribution_scheme}
+    \caption{\label{fig:pathlength-distribution}均匀照明条件下光子扩散平均行进路径示意图}
+\end{figure}
+
+设路径长度为 \(L\)，对应的概率密度为 \(p(L)\)，去卷积后的体后向散射剖面为 \(\beta(z)\)，其中路径长度与深度之间满足 \(L=2z\)。考虑雪层吸收作用后，两者满足
+\begin{equation}
+    p(L)=\frac{\beta(L/2)e^{k_aL}}{\int_{0}^{\infty}\beta(z)\,\mathrm{d}z},
+\end{equation}
+其中 \(k_a\) 为雪层吸收系数。由此可得路径长度的 \(n\) 阶矩为
+\begin{equation}
+    \langle L^n\rangle =
+    \frac{\int_{0}^{\infty}(2z)^n\beta(z)e^{2k_az}\,\mathrm{d}z}
+    {\int_{0}^{\infty}\beta(z)\,\mathrm{d}z}.
+\end{equation}
+根据多次散射理论，一阶矩与雪深 \(H\) 之间满足
+\begin{equation}
+    H=\frac{\langle L\rangle}{2}.
+\end{equation}
+这一关系构成本文雪深估计的基本表达式。
+
+为了提高求解的物理一致性，本文并不直接固定吸收系数，而是采用迭代方式联合求解 \(k_a\) 与 \(H\)。具体而言，首先给定吸收系数初值 \(k_a^{(0)}\)，然后基于去卷积后的剖面计算吸收校正后的路径长度分布。接着，根据路径长度分布估计雪反照率 \(a\)、平均路径长度 \(\langle L\rangle\) 以及二阶矩 \(\langle L^2\rangle\)，再利用
+\begin{equation}
+    k_{sd}=\frac{\langle L^2\rangle}{H^3}
+\end{equation}
+估计扩散散射系数 \(k_{sd}\)。随后，结合项目实现中的参数化关系，计算等效雪粒径
+\begin{equation}
+    R=\frac{1}{k_a}\left(\frac{1-a}{8.43}\right)^2,
+\end{equation}
+并进一步得到扩散衰减系数
+\begin{equation}
+    k_d=0.65\sqrt{\frac{k_a}{R}}.
+\end{equation}
+据此更新吸收系数
+\begin{equation}
+    k_a'=\frac{k_d^2}{3(k_{sd}+k_a)}.
+\end{equation}
+当相邻两次迭代的吸收系数差小于设定阈值时，认为迭代收敛，并输出对应的雪深结果。
+
+在实际计算中，本文仅对有效信号存在且积分结果稳定的剖面进行求解。对于信号过弱、去卷积结果为空或迭代未能收敛的剖面，结果记为无效值。通过这种处理方式，可以避免局部异常剖面对整体结果造成过大扰动。最终，每条有效剖面均输出对应的雪深估计值、反照率中间量以及地理位置信息，为后续的空间分析和精度验证提供基础。
+
+\subsection{方法特点与后续验证思路}
+如\autoref{fig:method-workflow}右下部分所示，本文方法的最终有效性仍需通过外部雪深产品和误差源分析进行检验。与传统 DEM 差分方法相比，本文方法直接利用雪层内部多次散射形成的回波长尾信号估计雪深，减少了对无雪期高程数据和外部参考地形的依赖。与单纯经验拟合方法相比，本文又通过表面识别、系统响应去卷积和吸收系数迭代求解，将统计特征提取与物理过程分析结合起来，从而增强了模型的可解释性。该方法的关键在于剖面构建质量、去卷积稳定性以及吸收与散射参数估计的合理性，因此第四章将围绕 OIB 机载雪深数据，对本文方法进行实验验证，并进一步分析多次散射对雪深探测误差的影响。
+
+\section{反演程序实现与关键参数设置}
+
+\subsection{程序组织与数据流转关系}
+为了将第二章的物理方法落实到可批处理的自动化流程中，本文在 MATLAB 环境下构建了分层式反演流程。整个流程以 ATL03 原始光子产品为起点，依次经历光子级数据读取、后向散射剖面构建、系统响应校正和雪深反演四个主要处理阶段。各阶段均保留可追溯的中间结果，用于单步检查、参数比较和误差定位。这样的组织方式并非对方法框架的重复描述，而是将物理模型、数值实现和结果输出之间的对应关系明确化，从而保证反演链条具有较好的可复查性和可解释性。
+
+本文将整体过程抽象为“数据读取—剖面构建—响应校正—参数反演”的四级处理链。该处理链既对应前文的物理建模逻辑，也对应当前计算流程中的数据流转关系。总体计算顺序可概括为表\autoref{tab:retrieval-pseudocode}所示的伪代码。
 
 \begin{table}[ht]
-    \caption{\label{tab:sample}自动调节列宽的表格}
-    \begin{tabularx}{\linewidth}{|c|X<{\centering}|}
-        \hline
-        第一列 & 第二列 \\ \hline
-        xxx & xxx \\ \hline
-        xxx & xxx \\ \hline
-        xxx & xxx \\ \hline
+    \centering
+    \caption{\label{tab:retrieval-pseudocode}基于 ICESat-2 光子观测的雪深反演流程伪代码}
+    \small
+    \begin{tabularx}{0.96\linewidth}{p{0.14\linewidth}X}
+        \toprule
+        环节 & 伪代码描述 \\
+        \midrule
+        输入 & 输入 ATL03 强束光子观测、研究区范围以及系统响应校正参数。 \\
+        步骤 1 & 读取光子高程、观测时刻、地理位置、沿轨距离和背景噪声信息，并执行空间约束与基础质量控制。 \\
+        步骤 2 & 在时间--高程空间识别主表面，完成表面对齐，并按设定时空分辨率构建局部平均后的后向散射剖面。 \\
+        步骤 3 & 估计并扣除背景噪声，对表面附近受仪器响应展宽影响的信号执行去卷积校正，得到校正后的体后向散射剖面。 \\
+        步骤 4 & 在有效深度范围内计算吸收校正后的路径长度分布及其统计矩，并迭代更新吸收与散射参数。 \\
+        步骤 5 & 判断迭代是否收敛；若满足收敛条件，则输出雪深、反照率和地理位置，否则将该剖面标记为无效样本。 \\
+        输出 & 输出沿轨雪深反演结果、质量标记以及用于后续验证分析的中间统计量。 \\
+        \bottomrule
     \end{tabularx}
 \end{table}
 
-\par 如\autoref{equ:sample}，这是一个公式
+为考察同一参数体系在不同观测日期下的适用性，以下小节在剖面构建与噪声抑制部分选取 2019 年 4 月 12 日、4 月 19 日和 4 月 22 日的三期典型轨段进行对比。这三期样本均保留了表面识别图和剖面图，能够从表面起伏、数据间断和噪声水平差异等角度展示参数设置对中间结果的影响。
 
-\begin{equation}
-    \label{equ:sample}
-    A=\overbrace{(a+b+c)+\underbrace{i(d+e+f)}_{\text{虚数}}}^{\text{复数}}
-\end{equation}
+\subsection{光子读取与场景筛选的实现策略}
+光子读取并不是简单地将 ATL03 字段直接导出，而是要为后续剖面构建提供一组能够稳定参与计算的基础变量。本文保留的核心信息包括光子高程、观测时刻、经纬度、沿轨距离、背景噪声估计以及光子置信度，并利用太阳高度角平均值判断当前轨段所处的昼夜条件。这些量在方法推导中无须逐一展开，但在实际反演流程中直接决定了场景筛选、噪声判断和结果定位的质量。
 
-\par 如\autoref{code:sample}所示，这是一段代码。
-计算机学院的代码样式可能与其他专业不同，
-如有需要，可以从计算机学院专业模板中复制相关的代码样式设定。
+在读取完光子数据后，处理流程首先对研究区域进行经纬度约束，然后在每 \(1\,\text{s}\) 时间段内统计光子数量。若某一时间段的光子总数低于 30000，则该段被视为难以支撑稳定表面识别和次表层长尾提取的低质量轨段，并被整体剔除。同时，以高程中位数为中心施加 \(\pm 50\,\text{m}\) 的粗筛选范围，用于去除明显偏离主表面的离散噪声和异常混入点。这一策略与开题报告中偏重方法设想的叙述不同，更强调在真实 ATL03 数据条件下对可用样本的工程控制。其目的并不在于过度清洗数据，而在于保证进入后续反演流程的观测段尽可能保持场景单一、表面清晰且噪声水平可控。
 
-\begin{lstlisting}[%
-    language={C},
-    caption={simple.c},
-    label={code:sample}
-]
-#include <stdio.h>
+在实现组织上，光子读取与后续反演计算相互独立。轨道级原始观测会先被整理为包含光子高程、时间、经纬度、沿轨距离和背景噪声估计的标准化输入，再进入后续剖面构建与参数反演环节。这样的分层处理将原始观测整理与物理量求解解耦，使不同日期和不同束号的样本能够共用同一套剖面参数与反演策略，也便于比较场景差异对结果稳定性的影响。
 
-int main(int argc, char *argv[])
-{
-    printf("Hello, zjuthesis\n");
-    return 0;
-}
-\end{lstlisting}
+\subsection{剖面构建参数与噪声抑制方式}
+在本文方法中，剖面构建是决定后续雪深反演稳定性的关键环节。表面提取的时间分辨率设为 \(0.001\,\mathrm{s}\)，高程分辨率设为 \(0.15\,\mathrm{m}\)，并在 \((t,h)\) 空间中通过分块直方图搜索主表面峰值。为避免超长轨段导致统计矩阵规模过大，时间分箱采用分块处理，单次最多处理 5000 个时间分箱。对于各分箱获得的原始表面序列，再利用相邻差分阈值抑制局部跳变；当相邻表面高程差绝对值超过 \(0.5\,\mathrm{m}\) 时，该变化被视为不满足连续性约束，不再参与后续表面映射。这样的参数设计强调表面追踪的稳健性，目的在于减少局部异常点对参考表面的牵引。
 
-\subsection{关于字体}
+在表面对齐之后，本文在 \(-15\sim30\)\,m 的深度范围内按 \(0.15\,\mathrm{m}\) 间隔构建垂向网格。对齐后的光子事件被投影到二维计数网格中，形成原始计数矩阵。沿轨方向上，采用 \(2\,\text{s}\) 的积分窗口和 \(0.01\,\text{s}\) 的滑动步长，对二维矩阵进行局部聚合平均，只保留窗口内有效数据量充足的剖面。这组参数的作用，是在空间分辨率与信噪比之间维持折中：窗口过大时局地变化会被削弱，窗口过小时次表层长尾又容易被随机噪声淹没。
 
-英文字体通常提供了粗体和斜体的组合，中文字体通常没有粗体或斜体，本模板使用了 `AutoFakeBold' 来实现中文伪粗体，但不提供中文斜体，如\autoref{tab:font-examples}所示。
+在噪声抑制方面，首先删除二维统计矩阵中整列为零的时间列，以避免空列干扰局部平均。对形成的剖面，当深度大于 \(8\,\mathrm{m}\) 时引入局部多项式平滑，以减弱深层离散计数造成的随机波动。背景噪声的估计区间设置为 \(-15\sim-8\)\,m。该区间位于参考表面上方，不应包含由雪层内部多次散射引起的有效次表层信号，因此可作为每条剖面的局部噪声水平估计。结合 \(2\,\text{s}\) 积分窗口和 \(0.15\,\text{m}\) 垂向网格，这一背景扣除方式能够在抑制无结构噪声的同时，尽量保留由雪层散射形成的深度衰减信息。
 
-\begin{table}
+为了说明上述参数设置在不同日期样本中的表现，\autoref{fig:surface-tracking-dates} 和 \autoref{fig:profile-denoise-dates} 分别给出三期典型轨段的表面识别结果和剖面生成结果。为保证可比性，三个样例采用一致的时间分辨率、垂向分辨率、积分窗口和背景估计区间。这里展示的重点不在于某一种中间结果的呈现形式，而在于观察同一参数体系在不同场景条件下是否能够稳定锁定主表面、压低背景噪声并保留次表层长尾信号。
+
+\begin{figure}[htbp]
     \centering
-    \caption{一些字体示例}
-    \label{tab:font-examples}
-    \begin{tabular}{|c|c|c|c|c|}
-        \hline
-        字体            & 常规             & 粗体                       & 斜体                      & 粗斜体                                \\ \hline
-        Times New Roman & Regular         & {\bfseries          Bold} & {\itshape         Italic} & {\bfseries \itshape      BoldItalic} \\ \hline
-        仿宋            & {\fangsong 常规} & {\fangsong \bfseries 粗体} & {\fangsong \itshape 斜体} & {\fangsong \bfseries \itshape 粗斜体} \\ \hline
-        宋体            & {\songti   常规} & {\songti   \bfseries 粗体} & {\songti   \itshape 斜体} & {\songti   \bfseries \itshape 粗斜体} \\ \hline
-        黑体            & {\heiti    常规} & {\heiti    \bfseries 粗体} & {\heiti    \itshape 斜体} & {\heiti    \bfseries \itshape 粗斜体} \\ \hline
-        楷体            & {\kaishu   常规} & {\kaishu   \bfseries 粗体} & {\kaishu   \itshape 斜体} & {\kaishu   \bfseries \itshape 粗斜体} \\ \hline
-    \end{tabular}
-\end{table}
+    \begin{subfigure}[t]{0.7\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190412/data/ice2/paper_data_gt2_step_t_005/Day_profile_strg3_ATL03_20190412130133_02180304_007_01.surface.jpg}
+        \caption{2019 年 4 月 12 日}
+        \label{fig:surface-dates-20190412}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.7\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190419/data/ice2/paper_data_gt2_step_t_005/Day_profile_strg3_ATL03_20190419131031_03250304_007_01.surface.jpg}
+        \caption{2019 年 4 月 19 日}
+        \label{fig:surface-dates-20190419}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.7\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190422/data/ice2/paper_data_gt2_step_t_005/Day_profile_strg3_ATL03_20190422132750_03710304_007_01.surface.jpg}
+        \caption{2019 年 4 月 22 日}
+        \label{fig:surface-dates-20190422}
+    \end{subfigure}
+    \caption{\label{fig:surface-tracking-dates}不同日期典型轨段的主表面识别结果。灰色点云表示原始光子分布，红色轨迹表示经过连续性约束后保留的参考表面。}
+\end{figure}
 
-\sectionnonum[none]{同一页上的章标题}
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190412/data/ice2/paper_data_gt2_step_t_005/Day_profile_strg3_ATL03_20190412130133_02180304_007_01.profile.jpg}
+        \caption{2019 年 4 月 12 日}
+        \label{fig:profile-dates-20190412}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190419/data/ice2/paper_data_gt2_step_t_005/Day_profile_strg3_ATL03_20190419131031_03250304_007_01.profile.jpg}
+        \caption{2019 年 4 月 19 日}
+        \label{fig:profile-dates-20190419}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190422/data/ice2/paper_data_gt2_step_t_005/Day_profile_strg3_ATL03_20190422132750_03710304_007_01.profile.jpg}
+        \caption{2019 年 4 月 22 日}
+        \label{fig:profile-dates-20190422}
+    \end{subfigure}
+    \caption{\label{fig:profile-denoise-dates}不同日期典型轨段的剖面生成与噪声抑制结果。红色曲线表示噪声抑制前的标准化剖面集合，蓝色曲线表示背景扣除与深层平滑后的有效剖面集合。}
+\end{figure}
+
+\autoref{fig:surface-tracking-dates} 反映了主表面识别在不同观测条件下的工作状态。三期样本的表面起伏形态、有效轨段长度和缺测分布并不相同，但参考表面均沿着高密度光子上边界稳定展开。4 月 12 日样例中存在多段明显间断，方法并未跨越空白区强行连接，而是仅在局部有效区间内保持连续跟踪；4 月 19 日样例表现为较长的单调起伏段，提取结果随坡度变化平滑抬升；4 月 22 日样例同时包含短段台阶变化和长段缓坡，参考表面仍能避免被稀疏离群光子牵引。这说明时间--高程分箱与相邻差分约束的组合，能够在不同地形起伏和数据完整性条件下维持表面定位的稳健性。
+
+\autoref{fig:profile-denoise-dates} 进一步给出了表面对齐后剖面的形态变化。三期样本在 \(0\,\text{m}\) 附近均形成尖锐主峰，说明表面回波被压缩到统一参考深度；在负深度区间，噪声抑制后的曲线整体下移，表明背景扣除显著压低了表面上方的随机计数底噪；在正深度区间，蓝色曲线仍保留由主峰向深部衰减的长尾结构，说明深层平滑并未抹除多次散射信号的整体包络。4 月 12 日与 4 月 22 日样例的深层波动更明显，反映出场景噪声和有效光子数存在差异，但处理后的剖面仍保持一致的衰减趋势。由此可见，积分窗口、垂向分辨率和背景估计区间的组合既能抑制无结构噪声，又能保留后续去卷积与路径长度统计所需的物理信息。
+
+\subsection{去卷积与迭代反演的数值设置}
+去卷积模块的目标是将观测到的处理剖面还原为更接近真实的雪层散射响应。当前实现读取预先构建的系统响应校正参数，并在原始剖面中仅保留深度不小于 \(-3\)\,m 的部分作为去卷积对象。随后，处理流程从这一深度范围中提取表面附近及表面以下信号，利用系统响应序列构建下三角卷积矩阵 \(\mathbf{F}\)，逐列求解 \(\mathbf{F}\mathbf{S}_{c}=\mathbf{S}_{o}\)。由于去卷积运算对浅层噪声和非物理小值较为敏感，在求解后将小于等于零的校正信号全部视为无效值，以阻断其对后续路径长度统计的影响。
+
+反演模块则以去卷积后的校正剖面为基础进行迭代求解。当前实现仅使用 \(0\leq z<20\)\,m 的有效深度范围，避免将表面上方噪声或深层异常值纳入路径长度分布计算。吸收系数的初值取 \(0.07\,\mathrm{m}^{-1}\)，收敛阈值取 0.001，最大迭代次数为 100。对每一条剖面，先根据 \(p(L)=\beta(z)e^{k_aL}\) 计算吸收校正后的路径长度分布，再通过梯形积分计算反照率、平均路径长度和二阶矩，进而更新 \(k_{sd}\)、\(R\)、\(k_d\) 以及新的 \(k_a\)。若剖面信号为空、积分分母为零，或经过最大迭代次数仍未满足收敛条件，则该剖面的雪深和反照率结果都被记为无效值。这样的结果管理方式虽然较为保守，但对于噪声水平不均、场景异质性较强的 ATL03 数据来说，可以有效避免异常剖面以看似合理的数值形式混入最终统计结果。
+
+为了展示系统响应校正与沿轨结果组织后的形态，\autoref{fig:process-deconv-output-example} 给出了一个典型样例。上图比较观测剖面、系统响应和校正后剖面的相对关系，下图展示逐条剖面反演结果沿轨汇集后的空间分布。保留这组图的目的，是检查响应校正是否有效压缩了浅层拖尾，以及局部反演结果能否在沿轨方向形成连续序列。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[t]{0.82\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190419/data/ice2/paper_data_gt2_step_t_005/deconv_Day_profile_strg3_ATL03_20190419131031_03250304_007_01.profile.jpg}
+        \caption{去卷积前后剖面对比。蓝线为观测剖面 \(S_o\)，橙线为校正后剖面 \(S_c\)，紫线为用于构造卷积矩阵的系统响应参考。}
+        \label{fig:process-deconv-20190419}
+    \end{subfigure}
+
+    \par\medskip
+
+    \begin{subfigure}[t]{0.98\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190419/results/plots/comparisons/paper_data_gt2_step_t_005_result_snow_ResultDay_profile_strg3_ATL03_20190419131031_03250304_007_01.profile_overlay.png}
+        \caption{沿轨输出示例。灰点为原始 OIB 雪深，红线为 \(3.6\,\text{km}\) 邻域平均结果，蓝线为本文方法反演得到的沿轨雪深。}
+        \label{fig:process-output-20190419}
+    \end{subfigure}
+    \caption{\label{fig:process-deconv-output-example}2019 年 4 月 19 日典型轨段的去卷积与沿轨反演示例。上图用于检查仪器响应校正效果，下图用于展示逐条剖面结果汇集后的沿轨雪深形态。}
+\end{figure}
+
+\autoref{fig:process-deconv-20190419} 表明，去卷积后浅层拖尾被明显压缩，校正后的剖面集合在 \(0\sim5\,\text{m}\) 深度范围内衰减更快，更接近物理上可解释的多次散射响应。与之对应，\autoref{fig:process-output-20190419} 给出了沿轨输出的空间形态，说明逐条剖面反演结果已经能够组织为连续序列，并保留局部起伏变化。这里展示该图的目的，在于说明响应校正与沿轨汇集两个步骤对结果形态的影响；关于精度、偏差与相关性的定量讨论仍放在第四章展开。
+
+\subsection{当前实现的特点与后续验证对象}
+与开题报告中以研究构想和技术路线为主的写法相比，本文这一章更关注已经形成的计算流程如何承载第二章中的物理假设。需要指出的是，从理论上看，多次散射路径长度分布既可以通过一阶矩给出雪深，也可以进一步利用二阶矩和三阶矩构建更完整的约束关系；但当前流程的主流实现是以一阶矩给出雪深估计，同时利用二阶矩约束扩散散射系数，再对吸收系数执行迭代更新。因此，本文在这一部分采用的是工程化实现的表述方式，而不是对全部理论分支做并列展开。这样既符合现有样本结果的真实状态，也能避免与开题报告中的方法论描述出现过高重复。
+
+基于上述实现，第四章将以去卷积后的剖面和迭代求解得到的雪深结果为主要对象，结合 OIB 机载雪深观测开展对比验证。由于这一流程已经在剖面构建、去卷积和迭代求解阶段给出了较明确的无效剖面排除条件，后续结果分析可以更有针对性地区分参数选择、噪声水平和场景差异对反演精度的影响，从而使论文各章节之间的逻辑衔接更加紧密。

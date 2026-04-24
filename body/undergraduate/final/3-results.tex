@@ -1,0 +1,118 @@
+\cleardoublepage
+
+\section{实验数据与结果分析}
+
+\subsection{验证数据构成与沿轨背景}
+本章同时使用数据包中的三类结果。第一类为三次 OIB 航线的原始雪深与整理后的雪深表，用于恢复整条航线的背景雪况与局地起伏；第二类为 gt1、gt2 和 gt3 三个 ICESat-2 处理分支生成的沿轨反演曲线，用于比较不同 beam 在同一日期上的表现；第三类为跨日期配对总表，用于统一计算 Bias、RMSE、MAE 和相关系数。当前最终配对总表仅保留 gt2 分支的最终雪深结果，共 4271 对有效样本，因此后续表格中的定量指标以 gt2 为统计对象，而图像对比仍保留三条 beam 的全部结果。空间配对采用 4\,km 横向邻域和 350\,m 沿轨窗口对 OIB 观测求局地平均，从而减弱原始机载观测中的高频波动。
+
+\begin{table}[htbp]
+    \centering
+    \caption{\label{tab:data-summary}实验样本规模与雪深背景统计}
+    \small
+    \begin{tabularx}{0.98\linewidth}{c c c X X X}
+        \toprule
+        日期 & OIB 有效样本数 & 配对样本数 & OIB 全轨雪深均值$\pm$标准差/m & 配对子集 OIB 均值$\pm$标准差/m & 配对子集 ICESat-2 均值$\pm$标准差/m \\
+        \midrule
+        2019-04-12 & 32579 & 557  & 0.2126 $\pm$ 0.1167 & 0.2134 $\pm$ 0.0370 & 0.2645 $\pm$ 0.0211 \\
+        2019-04-19 & 26778 & 2106 & 0.3207 $\pm$ 0.1732 & 0.2871 $\pm$ 0.0590 & 0.2735 $\pm$ 0.0315 \\
+        2019-04-22 & 16921 & 1608 & 0.2656 $\pm$ 0.1347 & 0.2558 $\pm$ 0.0427 & 0.2712 $\pm$ 0.0301 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+表\autoref{tab:data-summary} 表明，三天的背景雪况存在明显差异。4 月 19 日 OIB 全轨平均雪深达到 0.3207\,m，为三组样本中最高；4 月 12 日最低，仅为 0.2126\,m；4 月 22 日介于两者之间。配对子集的标准差均明显小于 OIB 全轨标准差，说明进入验证的样本主要集中在两平台重叠的局地航段，而不是对整条 OIB 航线的简单复制。4 月 19 日的差异最明显，其 OIB 全轨均值为 0.3207\,m，而配对子集均值仅为 0.2871\,m，表明当日最深的雪区并未完整进入最终配对样本。
+
+\begin{figure}[htbp]
+    \centering
+\begin{subfigure}[t]{0.98\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190412/results/plots/batch/IDCSI4_20190412.png}
+        \caption{2019 年 4 月 12 日 OIB 沿轨雪深}
+        \label{fig:oib-batch-20190412}
+    \end{subfigure}
+
+    \par\medskip
+
+    \begin{subfigure}[t]{0.98\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190419/results/plots/batch/IDCSI4_20190419.png}
+        \caption{2019 年 4 月 19 日 OIB 沿轨雪深}
+        \label{fig:oib-batch-20190419}
+    \end{subfigure}
+
+    \par\medskip
+
+    \begin{subfigure}[t]{0.98\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190422/results/plots/batch/IDCSI4_20190422.png}
+        \caption{2019 年 4 月 22 日 OIB 沿轨雪深}
+        \label{fig:oib-batch-20190422}
+    \end{subfigure}
+    \caption{\label{fig:oib-batch-tracks}三次 OIB 航线的沿轨雪深分布。灰色为原始雪深观测，黑线为平滑后的背景雪深。}
+\end{figure}
+
+图\autoref{fig:oib-batch-tracks} 展示了三次航线的完整 OIB 沿轨分布。图\ref{fig:oib-batch-20190412} 中黑色平滑曲线主要位于 0.15--0.30\,m 区间，局部峰值接近 0.40\,m，对应较浅而起伏频繁的背景雪况。图\ref{fig:oib-batch-20190419} 显示 4 月 19 日前半段雪深多处超过 0.40\,m，随后沿轨逐步下降至 0.20--0.30\,m，说明该日期同时存在较深雪区和明显的低频背景变化。图\ref{fig:oib-batch-20190422} 的背景雪深整体介于前两者之间，沿轨呈缓慢下降后再趋于平稳的形态。三条航线共同说明，误差分析不能脱离具体日期讨论，因为每一天的背景均值、局地起伏幅度和深雪区覆盖范围并不相同。
+
+\subsection{日期级配对结果对比}
+\begin{figure}[htbp]
+    \centering
+\begin{subfigure}[t]{0.98\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190412/results/plots/comparisons/merged_ResultDay_profile_strg3_ATL03_20190412130133_02180304_007_01.profile_overlay.png}
+        \caption{2019 年 4 月 12 日的日期级配对}
+        \label{fig:merged-comparison-20190412}
+    \end{subfigure}
+
+    \par\medskip
+
+    \begin{subfigure}[t]{0.98\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190419/results/plots/comparisons/merged_ResultDay_profile_strg3_ATL03_20190419131031_03250304_007_01.profile_overlay.png}
+        \caption{2019 年 4 月 19 日的日期级配对}
+        \label{fig:merged-comparison-20190419}
+    \end{subfigure}
+
+    \par\medskip
+
+    \begin{subfigure}[t]{0.98\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190422/results/plots/comparisons/merged_ResultDay_profile_strg3_ATL03_20190422132750_03710304_007_01.profile_overlay.png}
+        \caption{2019 年 4 月 22 日的日期级配对}
+        \label{fig:merged-comparison-20190422}
+    \end{subfigure}
+    \caption{\label{fig:merged-comparison-tracks}三次实验日期的 OIB/ICESat-2 日期级配对结果。灰点为 OIB 原始观测，红线为 350\,m 邻域平均雪深，蓝、绿、黑线分别对应 gt1、gt2 和 gt3 反演结果。}
+\end{figure}
+
+图\autoref{fig:merged-comparison-tracks} 将三天的日期级配对结果按照同类图件集中排版。图\ref{fig:merged-comparison-20190412} 中，三条 beam 曲线整体位于 0.25--0.32\,m，而红色 OIB 局地均值多落在 0.18--0.28\,m，说明 4 月 12 日存在比较稳定的整体高估，这与当日 0.0511\,m 的正 Bias 一致。图\ref{fig:merged-comparison-20190419} 中，三条 beam 曲线能够跟随 OIB 局地均值的下降趋势，深雪区的主背景被较好恢复，但峰值幅度明显小于红线与灰点散布带，反映出深雪振幅压缩的特征。图\ref{fig:merged-comparison-20190422} 中，三条 beam 曲线相互接近，整体围绕 0.27--0.32\,m 小幅波动，说明不同 beam 的反演量级较为一致；但红色 OIB 均值的动态范围本身较窄，因此即便绝对误差受控，相关系数仍容易被局地相位差削弱。结合当前的数据整理记录可知，跨日期总配对表仅保留 gt2 分支样本，因此后续定量结果统一基于 gt2，而本图保留 gt1 和 gt3 的作用主要在于展示同一日期内各 beam 的形态一致性。
+
+\begin{figure}[htbp]
+    \centering
+\includegraphics[width=0.96\linewidth]{../Reference/Data/_summary_reproduction/plots/oib_ice2_four_panel.png}
+    \caption{\label{fig:overall-validation}OIB 与 ICESat-2 配对样本的总体统计特征。A 为逐点配对散点，B 为两类雪深分布，C 为残差频数分布，D 为逐日均值比较。}
+\end{figure}
+
+\subsection{跨日期定量验证结果}
+\begin{table}[htbp]
+    \centering
+    \caption{\label{tab:validation-metrics}分日雪深配对验证统计结果}
+    \small
+    \begin{tabularx}{0.98\linewidth}{c c c c c c X}
+        \toprule
+        日期 & 配对数 & Bias/m & RMSE/m & MAE/m & $r$ & $\lvert\Delta\rvert\leq 0.10$\,m 占比 \\
+        \midrule
+        2019-04-12 & 557  &  0.0511 & 0.0688 & 0.0604 & -0.1925 & 86.54\% \\
+        2019-04-19 & 2106 & -0.0136 & 0.0538 & 0.0382 &  0.4750 & 90.22\% \\
+        2019-04-22 & 1608 &  0.0154 & 0.0534 & 0.0429 &  0.0483 & 94.71\% \\
+        全部样本   & 4271 &  0.0058 & 0.0558 & 0.0429 &  0.3002 & 91.43\% \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+图\autoref{fig:overall-validation} 和表\autoref{tab:validation-metrics} 给出了跨日期的统一定量结果。全部 4271 对样本的总体 Bias 为 0.0058\,m，RMSE 为 0.0558\,m，MAE 为 0.0429\,m，说明最终配对样本上的绝对误差稳定在厘米量级。图\autoref{fig:overall-validation}A 中，散点主要集中在 0.20--0.35\,m 区间，相关系数为 0.3002，对应 $R^2$ 约为 0.09。图 B 显示 ICESat-2 均值为 0.2715\,m，OIB 均值为 0.2657\,m，两者中心位置接近，但 ICESat-2 标准差仅为 0.0300\,m，小于 OIB 的 0.0566\,m，说明反演结果在保持总体均值的同时压缩了局地振幅。图 C 的残差分布以零附近为中心，中位数为 0.0139\,m，四分位区间为 $-0.0193$--0.0387\,m；66.99\% 的样本满足 $\lvert\Delta\rvert \leq 0.05$\,m，91.43\% 的样本满足 $\lvert\Delta\rvert \leq 0.10$\,m，表明误差并非由少量极端样本主导。图 D 进一步表明，逐日均值层面的相关性明显强于逐点比较，三天日均值的相关系数达到 0.9829，对应 $R^2$ 约为 0.97。
+
+分日结果揭示了不同日期之间并不相同的误差结构。4 月 12 日的 Bias 达到 0.0511\,m，是三天中系统性高估最明显的一组；这一日仅有 36.62\% 的样本落在 $\pm 0.05$\,m 范围内，说明局地起伏较大时更容易出现整体抬升。4 月 19 日的 RMSE 为 0.0538\,m，MAE 为 0.0382\,m，相关系数达到 0.4750，是三天中对背景变化恢复最好的一组；但若观察分布上尾部，OIB 配对子集的 90\% 分位数达到 0.3904\,m，而 ICESat-2 仅为 0.3088\,m，深雪样本的振幅仍被明显压缩。4 月 22 日的 RMSE 与 4 月 19 日接近，为 0.0534\,m，且 94.71\% 的样本落在 $\pm 0.10$\,m 范围内，绝对误差控制较好；其相关系数却只有 0.0483，主要原因在于该日 OIB 配对子集的四分位区间仅为 0.2208--0.2833\,m，样本动态范围较窄，相关系数会对微小的局地偏移更加敏感。
+
+\subsection{结果讨论}
+本章结果表明，当前反演结果更适合从“均值一致性”和“阈值误差控制”两个层面评价，而不宜只用逐点相关系数作单一判断。总体上，ICESat-2 与 OIB 的均值差仅为 0.58\,cm，RMSE 约为 5.6\,cm，说明反演结果在重叠样本上具有较好的绝对精度；但从标准差和分位数比较看，反演结果对深雪区和局地极值的响应偏弱，容易表现为振幅压缩。三次实验的平均 OIB 邻域标准差为 0.0142\,m，其中 4 月 12 日最高，达到 0.0215\,m，这说明局地观测场越不平滑，反演结果与 OIB 邻域均值之间越容易出现系统偏差。
+
+这种振幅压缩并非孤立现象，而是与配对样本的空间代表性共同作用。以 4 月 19 日为例，OIB 全轨均值与配对子集均值相差 3.36\,cm，说明最终验证对象本质上是重叠航段上的局地子集，而不是整条 OIB 航线的完整统计。因此，本章结论应理解为“ICESat-2 与 OIB 在重叠航段上的局地一致性”：方法对日尺度背景雪深变化的恢复较稳定，对绝对误差也有较好控制，但在深雪样本和局地峰谷位置上仍存在幅度压缩与相位偏移。后续改进的重点不在于单纯压低总体 RMSE，而在于增强深雪区的振幅保持能力，并进一步降低配对窗口内局地异质性对结果的放大作用。
