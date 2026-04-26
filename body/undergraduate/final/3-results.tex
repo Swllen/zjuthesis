@@ -1,13 +1,25 @@
 \cleardoublepage
 
-\section{实验数据与结果分析}
+\section{雪深反演结果验证与误差分析}
 
-\subsection{验证数据构成与沿轨背景}
-本章同时使用数据包中的三类结果。第一类为三次 OIB 航线的原始雪深与整理后的雪深表，用于恢复整条航线的背景雪况与局地起伏；第二类为 gt1、gt2 和 gt3 三个 ICESat-2 处理分支生成的沿轨反演曲线，用于比较不同 beam 在同一日期上的表现；第三类为跨日期配对总表，用于统一计算 Bias、RMSE、MAE 和相关系数。当前最终配对总表仅保留 gt2 分支的最终雪深结果，共 4271 对有效样本，因此后续表格中的定量指标以 gt2 为统计对象，而图像对比仍保留三条 beam 的全部结果。空间配对采用 4\,km 横向邻域和 350\,m 沿轨窗口对 OIB 观测求局地平均，从而减弱原始机载观测中的高频波动。
+本章在第三章反演结果的基础上，按照主要验证、补充对比和误差解释的逻辑组织结果。首先以 Operation IceBridge（OIB）机载雪深观测作为独立参考数据，评价 ICESat-2 雪深反演结果在北极海冰重叠航段上的表现；随后从沿轨形态、分日统计和跨日期指标三个层面分析结果的一致性；再引入 University of Arizona（UA）daily 4 km gridded snow depth 产品和 Canadian Meteorological Centre（CMC）格网雪深产品作为补充对比，用于检查当前流程在陆地区域和格网产品尺度下的适用性；最后结合配对尺度、剖面处理和地表条件讨论误差来源。由于 OIB 与 UA/CMC 样本在地表类型、空间分辨率和日期上均不相同，以下结果分别统计和解释，不合并为统一精度指标。
+
+\subsection{OIB 验证数据与配对方案}
+OIB 机载雪深观测是本章的主要独立参考数据。验证数据选取 2019 年 4 月 12 日、4 月 19 日和 4 月 22 日三次北极海冰 OIB 航线；这三天均保存了同日 OIB 雪深观测、ICESat-2 ATL03 反演结果以及近时空配对表，能够用于比较两类观测在重叠航段上的一致性。三期航线与对应 ICESat-2 轨段的空间位置如\autoref{fig:arctic-tracks-map}所示，样本主要分布在格陵兰北侧至加拿大北极群岛附近的高纬海冰区，区域范围较为明确。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.78\linewidth]{final/validation/oib/oib_icesat2_arctic_tracks_map}
+    \caption{\label{fig:arctic-tracks-map}三期 OIB 航线与 ICESat-2 轨段在北极海冰区的空间分布。彩色轨迹表示 IceBridge 沿轨雪深，颜色对应雪深大小；黑色线段和编号标示对应的 ATL03 轨段。}
+\end{figure}
+
+如\autoref{fig:arctic-tracks-map}所示，三期验证样本位于北极高纬海冰区，OIB 航线与 ICESat-2 轨段在空间上只形成局部交会，而不是整条航线完全重合。图中彩色点线表示 OIB 沿轨雪深观测，色标由蓝到红对应约 10--50\,cm 的雪深变化；黑色线段表示对应日期附近的 ATL03 地面轨迹，旁边编号用于区分不同 ICESat-2 轨段。4 月 12 日样本主要位于较高纬度的局地重叠区域，4 月 19 日和 4 月 22 日航线向格陵兰北侧延伸，覆盖范围和雪深背景均与 4 月 12 日不同。该空间分布说明，后续配对验证实际评价的是 OIB 与 ICESat-2 在局部重叠航段上的一致性，而不是对 OIB 全航线雪深场的整体检验，这一点也是解释误差统计的前提。
+
+本文的配对样本以 ICESat-2 反演点为基本单位。对每一个 ICESat-2 雪深点，在 OIB 航线中选取满足 4\,km 空间邻域约束且落入 350\,m 沿轨窗口的有效 OIB 雪深观测，并以窗口内 OIB 雪深平均值作为该点的机载参考值；若窗口内没有有效 OIB 观测，则该 ICESat-2 点不进入统计。因此，表中的“配对样本数”表示 ICESat-2 反演雪深与相应 OIB 邻域平均雪深构成的有效样本对数量，而不是原始 OIB 采样点数量。跨日期总配对表仅保留 Ground Track 2 分支的最终雪深结果，共 4271 对有效样本，因此后续定量指标以 Ground Track 2 为主要统计对象。Ground Track 1 和 Ground Track 3 不参与表格统计，主要用于图件中展示不同 beam 在相同日期上的沿轨形态是否一致，避免将不同 beam 的非同一配对样本混合后造成重复计数或样本口径不一致，从而保证统计结果可追溯。
 
 \begin{table}[htbp]
     \centering
-    \caption{\label{tab:data-summary}实验样本规模与雪深背景统计}
+    \caption{\label{tab:data-summary}OIB 验证样本规模与雪深背景统计}
     \small
     \begin{tabularx}{0.98\linewidth}{c c c X X X}
         \toprule
@@ -20,13 +32,13 @@
     \end{tabularx}
 \end{table}
 
-表\autoref{tab:data-summary} 表明，三天的背景雪况存在明显差异。4 月 19 日 OIB 全轨平均雪深达到 0.3207\,m，为三组样本中最高；4 月 12 日最低，仅为 0.2126\,m；4 月 22 日介于两者之间。配对子集的标准差均明显小于 OIB 全轨标准差，说明进入验证的样本主要集中在两平台重叠的局地航段，而不是对整条 OIB 航线的简单复制。4 月 19 日的差异最明显，其 OIB 全轨均值为 0.3207\,m，而配对子集均值仅为 0.2871\,m，表明当日最深的雪区并未完整进入最终配对样本。
+如\autoref{tab:data-summary}所示，三天的背景雪况存在明显差异。4 月 19 日 OIB 全轨平均雪深达到 0.3207\,m，为三组样本中最高；4 月 12 日最低，仅为 0.2126\,m；4 月 22 日介于两者之间。配对子集的标准差均明显小于 OIB 全轨标准差，说明进入验证的样本主要集中在两平台重叠的局地航段，而不是整条 OIB 航线的完整统计。4 月 19 日的差异最明显，其 OIB 全轨均值为 0.3207\,m，而配对子集均值仅为 0.2871\,m，表明当日最深的雪区并未完整进入最终配对样本。由此可见，本章验证的是 ICESat-2 反演结果在 OIB 重叠航段上的表现，不能直接等同于对全航线雪深分布的无条件评价，因此分日解释需要结合配对子集背景。
 
 \begin{figure}[htbp]
     \centering
 \begin{subfigure}[t]{0.98\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190412/results/plots/batch/IDCSI4_20190412.png}
+        \includegraphics[width=\linewidth]{final/validation/oib/oib_snow_track_20190412}
         \caption{2019 年 4 月 12 日 OIB 沿轨雪深}
         \label{fig:oib-batch-20190412}
     \end{subfigure}
@@ -35,7 +47,7 @@
 
     \begin{subfigure}[t]{0.98\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190419/results/plots/batch/IDCSI4_20190419.png}
+        \includegraphics[width=\linewidth]{final/validation/oib/oib_snow_track_20190419}
         \caption{2019 年 4 月 19 日 OIB 沿轨雪深}
         \label{fig:oib-batch-20190419}
     \end{subfigure}
@@ -44,21 +56,29 @@
 
     \begin{subfigure}[t]{0.98\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190422/results/plots/batch/IDCSI4_20190422.png}
+        \includegraphics[width=\linewidth]{final/validation/oib/oib_snow_track_20190422}
         \caption{2019 年 4 月 22 日 OIB 沿轨雪深}
         \label{fig:oib-batch-20190422}
     \end{subfigure}
     \caption{\label{fig:oib-batch-tracks}三次 OIB 航线的沿轨雪深分布。灰色为原始雪深观测，黑线为平滑后的背景雪深。}
 \end{figure}
 
-图\autoref{fig:oib-batch-tracks} 展示了三次航线的完整 OIB 沿轨分布。图\ref{fig:oib-batch-20190412} 中黑色平滑曲线主要位于 0.15--0.30\,m 区间，局部峰值接近 0.40\,m，对应较浅而起伏频繁的背景雪况。图\ref{fig:oib-batch-20190419} 显示 4 月 19 日前半段雪深多处超过 0.40\,m，随后沿轨逐步下降至 0.20--0.30\,m，说明该日期同时存在较深雪区和明显的低频背景变化。图\ref{fig:oib-batch-20190422} 的背景雪深整体介于前两者之间，沿轨呈缓慢下降后再趋于平稳的形态。三条航线共同说明，误差分析不能脱离具体日期讨论，因为每一天的背景均值、局地起伏幅度和深雪区覆盖范围并不相同。
+如\autoref{fig:oib-batch-tracks}所示，三次航线的完整 OIB 沿轨分布存在明显差异。\autoref{fig:oib-batch-20190412} 中黑色平滑曲线主要位于 0.15--0.30\,m 区间，局部峰值接近 0.40\,m，对应较浅而起伏频繁的背景雪况。\autoref{fig:oib-batch-20190419} 显示 4 月 19 日前半段雪深多处超过 0.40\,m，随后沿轨逐步下降至 0.20--0.30\,m，说明该日期同时存在较深雪区和明显的低频背景变化。\autoref{fig:oib-batch-20190422} 的背景雪深整体介于前两者之间，沿轨呈缓慢下降后再趋于平稳的形态。三条航线共同说明，误差分析不能脱离具体日期讨论，因为每一天的背景均值、局地起伏幅度和深雪区覆盖范围并不相同，这为后续分日统计提供了必要背景。
 
-\subsection{日期级配对结果对比}
+\subsection{沿轨形态与分日配对结果}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.96\linewidth]{final/validation/oib/oib_icesat2_gt2_overlay_20190419}
+    \caption{\label{fig:single-track-comparison-20190419}2019 年 4 月 19 日典型轨段的 OIB/ICESat-2 沿轨配对示例。灰点为 OIB 原始雪深，红线为 OIB 邻域平均结果，蓝线为 ICESat-2 反演雪深。}
+\end{figure}
+
+在开展多日期统计比较之前，如\autoref{fig:single-track-comparison-20190419}所示，先给出 2019 年 4 月 19 日一条典型 Ground Track 2 轨段的沿轨配对示例。Ground Track 2 是本章定量验证的主要对象，因为跨日期总配对表中的 4271 对样本均来自 Ground Track 2 最终雪深结果，样本定义、日期覆盖和统计口径保持一致。该图用于说明单轨曲线比较形式和空间配对结果的基本形态，后续对多日期结果的一致性、偏差和相关性分析仍以整批 Ground Track 2 样本统计为主，避免以个别轨段替代总体判断。
+
 \begin{figure}[htbp]
     \centering
 \begin{subfigure}[t]{0.98\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190412/results/plots/comparisons/merged_ResultDay_profile_strg3_ATL03_20190412130133_02180304_007_01.profile_overlay.png}
+        \includegraphics[width=\linewidth]{final/validation/oib/oib_icesat2_merged_overlay_20190412}
         \caption{2019 年 4 月 12 日的日期级配对}
         \label{fig:merged-comparison-20190412}
     \end{subfigure}
@@ -67,7 +87,7 @@
 
     \begin{subfigure}[t]{0.98\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190419/results/plots/comparisons/merged_ResultDay_profile_strg3_ATL03_20190419131031_03250304_007_01.profile_overlay.png}
+        \includegraphics[width=\linewidth]{final/validation/oib/oib_icesat2_merged_overlay_20190419}
         \caption{2019 年 4 月 19 日的日期级配对}
         \label{fig:merged-comparison-20190419}
     \end{subfigure}
@@ -76,22 +96,33 @@
 
     \begin{subfigure}[t]{0.98\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{../Reference/Data/IDCSI4_20190422/results/plots/comparisons/merged_ResultDay_profile_strg3_ATL03_20190422132750_03710304_007_01.profile_overlay.png}
+        \includegraphics[width=\linewidth]{final/validation/oib/oib_icesat2_merged_overlay_20190422}
         \caption{2019 年 4 月 22 日的日期级配对}
         \label{fig:merged-comparison-20190422}
     \end{subfigure}
-    \caption{\label{fig:merged-comparison-tracks}三次实验日期的 OIB/ICESat-2 日期级配对结果。灰点为 OIB 原始观测，红线为 350\,m 邻域平均雪深，蓝、绿、黑线分别对应 gt1、gt2 和 gt3 反演结果。}
+    \caption{\label{fig:merged-comparison-tracks}三次实验日期的 OIB/ICESat-2 日期级配对结果。灰点为 OIB 原始观测，红线为 350\,m 邻域平均雪深，蓝、绿、黑线分别对应 Ground Track 1、Ground Track 2 和 Ground Track 3 反演结果。}
 \end{figure}
 
-图\autoref{fig:merged-comparison-tracks} 将三天的日期级配对结果按照同类图件集中排版。图\ref{fig:merged-comparison-20190412} 中，三条 beam 曲线整体位于 0.25--0.32\,m，而红色 OIB 局地均值多落在 0.18--0.28\,m，说明 4 月 12 日存在比较稳定的整体高估，这与当日 0.0511\,m 的正 Bias 一致。图\ref{fig:merged-comparison-20190419} 中，三条 beam 曲线能够跟随 OIB 局地均值的下降趋势，深雪区的主背景被较好恢复，但峰值幅度明显小于红线与灰点散布带，反映出深雪振幅压缩的特征。图\ref{fig:merged-comparison-20190422} 中，三条 beam 曲线相互接近，整体围绕 0.27--0.32\,m 小幅波动，说明不同 beam 的反演量级较为一致；但红色 OIB 均值的动态范围本身较窄，因此即便绝对误差受控，相关系数仍容易被局地相位差削弱。结合当前的数据整理记录可知，跨日期总配对表仅保留 gt2 分支样本，因此后续定量结果统一基于 gt2，而本图保留 gt1 和 gt3 的作用主要在于展示同一日期内各 beam 的形态一致性。
+如\autoref{fig:merged-comparison-tracks}所示，三天的日期级配对结果按照同类图件集中排版。\autoref{fig:merged-comparison-20190412} 中，三条 beam 曲线整体位于 0.25--0.32\,m，而红色 OIB 局地均值多落在 0.18--0.28\,m，说明 4 月 12 日存在比较稳定的整体高估，这与当日 0.0511\,m 的正 Bias 一致。\autoref{fig:merged-comparison-20190419} 中，三条 beam 曲线能够跟随 OIB 局地均值的下降趋势，深雪区的主背景被较好恢复，但峰值幅度明显小于红线与灰点散布带，反映出深雪振幅压缩的特征。\autoref{fig:merged-comparison-20190422} 中，三条 beam 曲线相互接近，整体围绕 0.27--0.32\,m 小幅波动，说明不同 beam 的反演量级较为一致；但红色 OIB 均值的动态范围本身较窄，因此即便绝对误差受控，逐点相关性仍容易被局地相位差削弱。本图保留 Ground Track 1 和 Ground Track 3 的目的，是检验多 beam 反演曲线是否具有相近的沿轨形态；定量统计仍统一使用 Ground Track 2，以保证所有指标基于同一配对样本集合。
 
 \begin{figure}[htbp]
     \centering
-\includegraphics[width=0.96\linewidth]{../Reference/Data/_summary_reproduction/plots/oib_ice2_four_panel.png}
+\includegraphics[width=0.96\linewidth]{final/validation/oib/oib_icesat2_validation_summary}
     \caption{\label{fig:overall-validation}OIB 与 ICESat-2 配对样本的总体统计特征。A 为逐点配对散点，B 为两类雪深分布，C 为残差频数分布，D 为逐日均值比较。}
 \end{figure}
 
-\subsection{跨日期定量验证结果}
+\subsection{跨日期统计评价}
+设第 $i$ 个配对样本的 ICESat-2 反演雪深为 $s_i^{I}$，OIB 邻域平均雪深为 $s_i^{O}$，残差定义为 $\Delta_i=s_i^{I}-s_i^{O}$，样本数为 $N$。表 \ref{tab:validation-metrics} 中的 Bias、RMSE、MAE 和相关系数 $r$ 分别定义为
+\begin{equation}
+\mathrm{Bias}=\frac{1}{N}\sum_{i=1}^{N}\Delta_i,\quad
+\mathrm{RMSE}=\sqrt{\frac{1}{N}\sum_{i=1}^{N}\Delta_i^2},\quad
+\mathrm{MAE}=\frac{1}{N}\sum_{i=1}^{N}\lvert\Delta_i\rvert,
+\end{equation}
+\begin{equation}
+r=\frac{\sum_{i=1}^{N}(s_i^{I}-\bar{s}^{I})(s_i^{O}-\bar{s}^{O})}{\sqrt{\sum_{i=1}^{N}(s_i^{I}-\bar{s}^{I})^2}\sqrt{\sum_{i=1}^{N}(s_i^{O}-\bar{s}^{O})^2}}.
+\end{equation}
+其中 Bias 反映系统偏差，正值表示 ICESat-2 反演雪深整体高于 OIB 邻域平均雪深，负值表示 ICESat-2 反演雪深整体低于 OIB 参考值；RMSE 和 MAE 描述绝对误差大小，$r$ 描述逐点变化的一致程度。各指标含义不同，因此后文分别从均值、误差幅度和相关性三个层面解释结果。
+
 \begin{table}[htbp]
     \centering
     \caption{\label{tab:validation-metrics}分日雪深配对验证统计结果}
@@ -108,11 +139,79 @@
     \end{tabularx}
 \end{table}
 
-图\autoref{fig:overall-validation} 和表\autoref{tab:validation-metrics} 给出了跨日期的统一定量结果。全部 4271 对样本的总体 Bias 为 0.0058\,m，RMSE 为 0.0558\,m，MAE 为 0.0429\,m，说明最终配对样本上的绝对误差稳定在厘米量级。图\autoref{fig:overall-validation}A 中，散点主要集中在 0.20--0.35\,m 区间，相关系数为 0.3002，对应 $R^2$ 约为 0.09。图 B 显示 ICESat-2 均值为 0.2715\,m，OIB 均值为 0.2657\,m，两者中心位置接近，但 ICESat-2 标准差仅为 0.0300\,m，小于 OIB 的 0.0566\,m，说明反演结果在保持总体均值的同时压缩了局地振幅。图 C 的残差分布以零附近为中心，中位数为 0.0139\,m，四分位区间为 $-0.0193$--0.0387\,m；66.99\% 的样本满足 $\lvert\Delta\rvert \leq 0.05$\,m，91.43\% 的样本满足 $\lvert\Delta\rvert \leq 0.10$\,m，表明误差并非由少量极端样本主导。图 D 进一步表明，逐日均值层面的相关性明显强于逐点比较，三天日均值的相关系数达到 0.9829，对应 $R^2$ 约为 0.97。
+如\autoref{fig:overall-validation}和\autoref{tab:validation-metrics}所示，跨日期样本的统一定量结果表明，全部 4271 对样本的总体 Bias 为 0.0058\,m，RMSE 为 0.0558\,m，MAE 为 0.0429\,m，说明最终配对样本上的绝对误差稳定在厘米量级，OIB 背景雪深量级能够得到较好反映。与此同时，\autoref{fig:overall-validation}A 中逐点散点主要集中在 0.20--0.35\,m 区间，相关系数仅为 0.3002，对应 $R^2$ 约为 0.09，说明逐点起伏的一致性仍然有限。图 B 显示 ICESat-2 均值为 0.2715\,m，OIB 均值为 0.2657\,m，两者中心位置接近，但 ICESat-2 标准差仅为 0.0300\,m，小于 OIB 的 0.0566\,m，说明反演结果在保持总体均值的同时压缩了局地振幅。图 C 的残差分布以零附近为中心，中位数为 0.0139\,m，四分位区间为 $-0.0193$--0.0387\,m；66.99\% 的样本满足 $\lvert\Delta\rvert \leq 0.05$\,m，91.43\% 的样本满足 $\lvert\Delta\rvert \leq 0.10$\,m，表明误差并非由少量极端样本主导。图 D 进一步表明，逐日均值层面的相关性明显强于逐点比较，三天日均值的相关系数达到 0.9829，对应 $R^2$ 约为 0.97，体现出方法对背景量级更为敏感。
 
-分日结果揭示了不同日期之间并不相同的误差结构。4 月 12 日的 Bias 达到 0.0511\,m，是三天中系统性高估最明显的一组；这一日仅有 36.62\% 的样本落在 $\pm 0.05$\,m 范围内，说明局地起伏较大时更容易出现整体抬升。4 月 19 日的 RMSE 为 0.0538\,m，MAE 为 0.0382\,m，相关系数达到 0.4750，是三天中对背景变化恢复最好的一组；但若观察分布上尾部，OIB 配对子集的 90\% 分位数达到 0.3904\,m，而 ICESat-2 仅为 0.3088\,m，深雪样本的振幅仍被明显压缩。4 月 22 日的 RMSE 与 4 月 19 日接近，为 0.0534\,m，且 94.71\% 的样本落在 $\pm 0.10$\,m 范围内，绝对误差控制较好；其相关系数却只有 0.0483，主要原因在于该日 OIB 配对子集的四分位区间仅为 0.2208--0.2833\,m，样本动态范围较窄，相关系数会对微小的局地偏移更加敏感。
+分日结果揭示了不同日期之间并不相同的误差结构。4 月 12 日的 Bias 达到 0.0511\,m，是三天中系统性高估最明显的一组；这一日仅有 36.62\% 的样本落在 $\pm 0.05$\,m 范围内，说明局地起伏较大时更容易出现整体抬升。4 月 19 日的 RMSE 为 0.0538\,m，MAE 为 0.0382\,m，相关系数达到 0.4750，是三天中对背景变化恢复最好的一组；但若观察分布上尾部，OIB 配对子集的 90\% 分位数达到 0.3904\,m，而 ICESat-2 仅为 0.3088\,m，深雪样本的振幅仍被明显压缩。4 月 22 日的 RMSE 与 4 月 19 日接近，为 0.0534\,m，且 94.71\% 的样本落在 $\pm 0.10$\,m 范围内，绝对误差控制较好；其相关系数却只有 0.0483，主要原因在于该日 OIB 配对子集的四分位区间仅为 0.2208--0.2833\,m，样本动态范围较窄，相关系数会对微小的局地偏移更加敏感。总体而言，当前结果的优势在于平均雪深和绝对误差较稳定，不足在于逐点相关性有限，并且对局地峰值和深雪极值存在振幅压缩，这需要在误差来源中进一步解释。
 
-\subsection{结果讨论}
-本章结果表明，当前反演结果更适合从“均值一致性”和“阈值误差控制”两个层面评价，而不宜只用逐点相关系数作单一判断。总体上，ICESat-2 与 OIB 的均值差仅为 0.58\,cm，RMSE 约为 5.6\,cm，说明反演结果在重叠样本上具有较好的绝对精度；但从标准差和分位数比较看，反演结果对深雪区和局地极值的响应偏弱，容易表现为振幅压缩。三次实验的平均 OIB 邻域标准差为 0.0142\,m，其中 4 月 12 日最高，达到 0.0215\,m，这说明局地观测场越不平滑，反演结果与 OIB 邻域均值之间越容易出现系统偏差。
+与 Lu 等对 2019 年 4 月北极海冰样本的验证结果相比，本文得到的总体 RMSE 为 0.0558\,m，低于其报道的约 7.8\,cm RMS 差异\citep{Lu2022Unc}。这一差异不能简单理解为本文方法整体优于已有研究，因为两者在 beam 选择、配对样本数量、空间窗口、剖面处理参数和统计口径上并不完全一致。本文只将 Ground Track 2 的最终配对样本纳入表格统计，并采用 350\,m 沿轨窗口构建局地 OIB 均值，因此在降低随机误差的同时也可能削弱局地高频起伏。更合理的解释是，当前流程在所选重叠航段上能够达到与已有研究相同量级的验证误差，但仍需通过更多日期、更多 beam 和统一配对策略进一步检验其稳健性。
 
-这种振幅压缩并非孤立现象，而是与配对样本的空间代表性共同作用。以 4 月 19 日为例，OIB 全轨均值与配对子集均值相差 3.36\,cm，说明最终验证对象本质上是重叠航段上的局地子集，而不是整条 OIB 航线的完整统计。因此，本章结论应理解为“ICESat-2 与 OIB 在重叠航段上的局地一致性”：方法对日尺度背景雪深变化的恢复较稳定，对绝对误差也有较好控制，但在深雪样本和局地峰谷位置上仍存在幅度压缩与相位偏移。后续改进的重点不在于单纯压低总体 RMSE，而在于增强深雪区的振幅保持能力，并进一步降低配对窗口内局地异质性对结果的放大作用。
+\subsection{UA/CMC 补充对比与适用性检验}
+为进一步检查当前反演流程在不同外部参考数据下的表现，本文使用 2020 年 3 月 27 日 ICESat-2 轨段与 UA daily 4 km gridded snow depth 产品进行补充比较，并同步保留 CMC 格网雪深作为辅助参考。与 OIB 样本不同，该组数据对应陆地区域，参考雪深来自格网产品；因此，它更适合用于判断反演雪深与格网产品之间的量级一致性，而不宜直接与前述 OIB 机载沿轨验证精度作同一口径比较。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[t]{0.86\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{final/validation/ua_cmc/ua_icesat2_snow_tracks_map}
+        \caption{UA 格网雪深与 ICESat-2 轨迹}
+        \label{fig:ua-track-map}
+    \end{subfigure}
+
+    \par\medskip
+
+    \begin{subfigure}[t]{0.86\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{final/validation/ua_cmc/cmc_icesat2_snow_tracks_map}
+        \caption{CMC 格网雪深与 ICESat-2 轨迹}
+        \label{fig:cmc-track-map}
+    \end{subfigure}
+    \caption{\label{fig:ua-cmc-track-maps}2020 年 3 月 27 日 UA、CMC 格网雪深产品与 ICESat-2 轨迹的空间对应关系。彩色背景表示格网雪深，红色曲线表示参与补充对比的 ATL03 轨段。}
+\end{figure}
+
+如\autoref{fig:ua-cmc-track-maps}所示，补充对比样本位于北美中西部陆地区域，红色 ICESat-2 轨迹主要穿过 UA 和 CMC 格网雪深产品均有覆盖的区域。UA 图中雪深空间分布更破碎，局地无雪区和山地深雪区交错明显；CMC 图中格网更平滑，北部和东部深雪区范围更连续。两类格网产品在同一轨迹附近呈现不同的空间背景，说明后续对比不仅反映 ICESat-2 反演结果的差异，也受到格网产品分辨率、数据融合方式和陆地地表异质性的共同影响。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.96\linewidth]{final/validation/ua_cmc/ua_cmc_icesat2_profiles_20200327}
+    \caption{\label{fig:ua-ice2-profiles}2020 年 3 月 27 日 ICESat-2 反演雪深与 UA/CMC 格网雪深产品的沿轨对比。不同颜色曲线表示 Ground Track 1、Ground Track 2 和 Ground Track 3 的反演结果及其对应的 UA、CMC 格网雪深。}
+\end{figure}
+
+\begin{table}[htbp]
+    \centering
+    \caption{\label{tab:ua-validation-metrics}UA 格网雪深产品补充对比统计结果}
+    \small
+    \begin{tabular}{c c c c c c c}
+        \toprule
+        分支 & UA 有效点数 & UA 有效率 & ICESat-2 均值/m & UA 均值/m & Bias/m & RMSE/m \\
+        \midrule
+        Ground Track 1 & 2992 & 99.14\% & 0.9649 & 0.6648 & 0.3001 & 0.9823 \\
+        Ground Track 2 & 2959 & 99.53\% & 0.9187 & 0.6947 & 0.2240 & 0.6793 \\
+        Ground Track 3 & 3104 & 99.58\% & 1.1071 & 0.6608 & 0.4463 & 1.0139 \\
+        全部样本 & 9055 & 99.42\% & 0.9986 & 0.6732 & 0.3253 & 0.9066 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+如\autoref{fig:ua-ice2-profiles}和\autoref{tab:ua-validation-metrics}所示，UA 对比样本共包含 9108 个 ICESat-2 反演点，其中 9055 个点落入 UA 有效格网并具有可用雪深值，有效率达到 99.42\%。从均值看，ICESat-2 反演雪深整体为 0.9986\,m，高于 UA 的 0.6732\,m，二者差值为 0.3253\,m，RMSE 达到 0.9066\,m，明显大于 OIB 海冰样本中的厘米量级误差。分 beam 结果中，Ground Track 2 的 Bias 和 RMSE 最小，分别为 0.2240\,m 和 0.6793\,m；Ground Track 3 的高估最明显，Bias 为 0.4463\,m，RMSE 为 1.0139\,m。三条 beam 之间的差异说明，该组陆地区域格网对比对轨段选择和局地剖面质量更加敏感。
+
+逐点统计进一步显示，ICESat-2 与 UA 的相关系数仅为 $-0.0181$，Ground Track 2 的相关系数也仅为 0.1477，说明两者沿轨起伏基本没有形成稳定线性对应。残差中位数为 0.2798\,m，5\% 和 95\% 分位数分别为 $-0.6704$\,m 和 1.3776\,m；绝对差小于 0.10\,m、0.30\,m 和 0.50\,m 的样本比例分别为 11.89\%、30.16\% 和 51.94\%。同期 CMC 格网产品的总体均值为 0.4112\,m，与 ICESat-2 的 Bias 为 0.5850\,m，RMSE 为 0.9791\,m，说明该样本中 ICESat-2 反演结果相对于两个格网参考均表现为整体偏高。
+
+Lu 等在更大范围陆地样本中给出的 ICESat-2 与 UA 4\,km 格网雪深 RMS 差异约为 14\,cm，并指出格网平均、观测时间差和地形起伏会影响两类数据之间的一致性\citep{Lu2022Unc}。本文补充样本的 RMSE 明显更大，说明当前陆地对比并未复现实测文献中的较好表现。造成该差异的原因一方面可能来自样本区域本身，所选轨段穿过的地形和积雪空间异质性较强；另一方面也与本文参数体系主要围绕北极海冰 OIB 样本调试有关，没有针对陆地粗糙地形、植被遮挡和格网产品尺度效应重新设定表面识别、窗口长度和质量筛选条件。因此，该组对比更适合作为适用性边界分析，而不是作为当前算法在陆地雪深场景中的最终精度评价。
+
+上述结果表明，UA/CMC 补充对比没有重复 OIB 样本中的较好误差水平，而是暴露出当前反演流程在陆地区域和格网产品验证场景下的适用性限制。可能原因包括陆地表面起伏和植被等非雪层散射因素使光子剖面形态更加复杂，格网雪深与 ICESat-2 沿轨剖面代表的空间尺度差异较大，以及当前参数体系主要围绕海冰样本调试，未针对陆地粗糙地形和复杂背景进行重新约束。因此，本文将 UA/CMC 结果作为外部补充检验和局限性证据，而不将其与 OIB 结果合并为统一精度指标。
+
+\subsection{误差来源与适用性边界}
+本章结果表明，当前反演结果更适合从“均值一致性”和“阈值误差控制”两个层面评价，而不宜只用逐点相关系数作单一判断。总体上，ICESat-2 与 OIB 的均值差仅为 0.58\,cm，RMSE 约为 5.6\,cm，说明反演结果在海冰重叠样本上具有较好的绝对精度；但从标准差和分位数比较看，反演结果对深雪区和局地极值的响应偏弱，容易表现为振幅压缩。UA/CMC 补充对比则显示，当验证对象从海冰机载沿轨观测转为陆地格网产品时，当前参数体系会出现明显高估和相关性不足，说明方法适用性受地表类型、空间尺度和参考数据口径共同制约。三次 OIB 实验的平均邻域标准差为 0.0142\,m，其中 4 月 12 日最高，达到 0.0215\,m，这说明局地观测场越不平滑，反演结果与 OIB 邻域均值之间越容易出现系统偏差，因此需要结合观测尺度和处理窗口共同解释。
+
+首先，空间配对会引入代表性误差。OIB 航线与 ICESat-2 地面轨迹并非严格重合，4\,km 空间邻域和 350\,m 沿轨窗口能够提高有效配对数，但也会将不同位置的雪深变化折算为同一个参考值。当航线附近存在雪脊、融池边界或风成雪带等强空间异质性时，窗口平均值可能偏离 ICESat-2 实际足迹内的雪深，导致逐点相关性下降。以 4 月 19 日为例，OIB 全轨均值与配对子集均值相差 3.36\,cm，说明最终验证对象本质上是重叠航段上的局地子集，而不是整条 OIB 航线的完整统计，这会限制结果外推到全航线的解释范围。
+
+其次，两类观测的足迹尺度和采样机制不同。OIB 机载观测沿航线提供高密度雪深采样，ICESat-2 则由光子计数激光足迹和沿轨处理窗口共同决定有效观测尺度；即使二者在平面位置上接近，也并不一定对应同一块雪面。为抑制噪声而采用的滑动窗口会进一步平滑反演曲线，使局地峰谷被削弱，并可能使雪深峰值位置产生轻微相位偏移。这一机制有助于降低 RMSE 和 MAE，但也会带来深雪峰值低估和动态范围收窄，是振幅压缩的重要原因之一。
+
+再次，反演链条本身也会影响误差结构。去卷积处理用于削弱系统响应对光子剖面的展宽影响，但当背景噪声较强、光子数不足或表面回波形态复杂时，去卷积结果可能仍保留残余展宽或产生过度平滑。Lu 等指出，ATLAS afterpulse 可能在表面以下形成明显伪峰，若不进行系统响应校正，会把仪器延迟脉冲误判为雪层内部多次散射信号\citep{Lu2022Unc}。本文虽然引入了去卷积步骤，但实际剖面仍受到信噪比、响应函数适配程度和非负筛选方式限制，因此去卷积结果的稳定性仍是深雪振幅压缩和局地误差的重要来源。
+
+第四，表面粗糙度、大气前向散射和背景光子会改变剖面长尾形态。Lu 等的模拟表明，当表面粗糙度或脉冲展宽标准差小于约 50\,cm 时，雪深误差通常小于 5\,cm；若展宽继续增大，误差可能超过 10\,cm\citep{Lu2022Unc}。太阳背景若未被有效扣除，也可能使反演雪深产生 5--20\,cm 的正偏差，而探测器暗计数通常比雪面回波低数个量级，对雪深偏差贡献较小。本文采用表面以上区间估计背景并进行扣除，但在低太阳高度角、局地粗糙表面或光子数较少的轨段中，背景估计和表面展宽仍可能与雪层多次散射信号相互混叠。
+
+最后，Lu 等关于海洋激光衰减系数的研究也提示，ATLAS 次表层剖面解释需要严格区分介质光学衰减、表面附近多次散射和观测系统限制\citep{Lu2023OceanAtten}。在海水场景中，研究者通过夜间观测、表面回波强度阈值和大气光学厚度筛选控制剖面质量；在本文的海冰雪深场景中，类似的质量控制同样重要。若海冰、雪层、融池或水体界面共同贡献表面以下光子，则回波长尾不一定只代表雪层内部路径长度分布，这会削弱统计矩与雪深之间的单一对应关系。上述因素共同解释了为什么本章结果在 OIB 海冰样本上绝对误差较好，但逐点相关性有限，并且在 UA/CMC 补充样本中表现出更强的系统偏差，也说明后续改进需要同时面向信号处理、场景分类和配对验证。
+
+\subsection*{本章小结}
+本章以 OIB 机载雪深为参考，对 2019 年 4 月 12 日、4 月 19 日和 4 月 22 日的 ICESat-2 反演结果进行了近时空配对验证，并使用 2020 年 3 月 27 日 UA/CMC 格网雪深产品开展了补充对比。结果说明，在统一配对口径下，当前反演能够较好反映 OIB 重叠航段上的背景雪深量级，并将总体绝对误差控制在厘米量级；但对局地起伏、峰谷位置和深雪极值的刻画仍不充分。UA/CMC 对比结果进一步表明，当前海冰样本参数体系不能直接推广到陆地区域格网验证，后续需要在配对策略、窗口尺度、场景分类、去卷积稳定性和粗糙表面条件下的反演模型方面继续改进。
