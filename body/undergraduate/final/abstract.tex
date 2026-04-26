@@ -3,8 +3,24 @@
     \bfseries \zihao{3} 摘~要
 \end{center}
 
+积雪深度是海冰厚度反演和冰冻圈能量平衡分析中的重要参数。ICESat-2/ATLAS 光子计数激光雷达能够提供高空间分辨率的光子级高程观测，其雪层内部多次散射形成的次表层长尾信号，记录了光子在雪层中的传播信息，为不依赖无雪期参考高程的雪深直接反演提供了新的信息来源。
+
+本文以 ICESat-2 ATL03 光子数据为基础，构建面向北极海冰区域的雪深反演流程。首先对强束光子数据进行空间筛选、高程粗筛、主表面识别和表面对齐，生成统一表面基准下的沿轨后向散射剖面；随后通过滑动窗口聚合、背景噪声扣除和系统响应去卷积，削弱随机噪声、仪器脉冲拖尾和 afterpulse 影响；最后依据多次散射路径长度统计矩与雪深之间的关系，迭代得到沿轨雪深反演结果。
+
+为验证反演效果，本文选取 2019 年 4 月 12 日、4 月 19 日和 4 月 22 日三期 ICESat-2 与 Operation IceBridge（OIB）机载雪深重叠观测样本，采用 4\,km 空间邻域和 350\,m 沿轨窗口构建配对样本，并以 Ground Track 2 分支的 4271 对有效样本开展主要定量统计。结果表明，在该配对口径下，全部样本的 Bias 为 0.0058\,m，RMSE 为 0.0558\,m，MAE 为 0.0429\,m，91.43\% 的样本绝对误差不超过 0.10\,m，说明当前方法能够较好反映 OIB 重叠航段上的背景雪深量级。但逐点相关系数仅为 0.3002，且 ICESat-2 反演雪深标准差小于 OIB 参考值，表明该方法对局地峰谷和深雪极值的响应仍然不足，存在一定振幅压缩。本文还使用 2020 年 3 月 27 日 UA/CMC 格网雪深产品开展补充对比，结果显示 ICESat-2 反演雪深相对 UA 整体偏高，Bias 为 0.3253\,m，RMSE 为 0.9066\,m，相对 CMC 的 Bias 和 RMSE 分别为 0.5850\,m 和 0.9791\,m，说明当前海冰样本参数体系不能直接推广到陆地区域格网验证场景。误差主要与空间配对尺度、足迹差异、滑动窗口、去卷积稳定性、背景噪声、表面粗糙度和地表类型有关。
+
+\textbf{关键词：}ICESat-2；光子计数激光雷达；雪深反演；海冰；Operation IceBridge；UA/CMC 格网雪深；多次散射
+
 
 \cleardoublepage{}
 \begin{center}
     \bfseries \zihao{3} Abstract
 \end{center}
+
+Snow depth is a key parameter for sea-ice thickness retrieval and cryospheric energy-balance studies. The photon-counting lidar onboard ICESat-2 provides high-resolution photon observations, and the subsurface tail caused by multiple scattering in snow offers a potential way to retrieve snow depth without relying on snow-free reference elevations.
+
+This thesis develops a snow-depth retrieval workflow based on ICESat-2 ATL03 photon data over Arctic sea ice. Strong-beam photons are filtered by location and elevation, the main surface is identified, and surface-aligned backscatter profiles are constructed. Sliding-window aggregation, background-noise subtraction, and system-response deconvolution are then used to reduce random noise, pulse broadening, and afterpulse effects. Snow depth is finally estimated from the statistical moments of the multiple-scattering path-length distribution through an iterative procedure.
+
+The retrieval results are validated against Operation IceBridge (OIB) airborne snow-depth measurements from April 12, April 19, and April 22, 2019. Paired samples are constructed using a 4\,km spatial neighborhood and a 350\,m along-track window, and the main quantitative statistics are based on 4271 valid Ground Track 2 sample pairs. The overall Bias, RMSE, and MAE are 0.0058\,m, 0.0558\,m, and 0.0429\,m, respectively, with 91.43\% of the samples having absolute errors within 0.10\,m. These results indicate that the method can reproduce the background snow-depth magnitude along the OIB-overlapped tracks. However, the pointwise correlation coefficient is only 0.3002, and the standard deviation of ICESat-2 retrievals is smaller than that of the OIB reference, suggesting limited sensitivity to local fluctuations and deep-snow extremes. A supplementary comparison with the UA and CMC gridded snow-depth products on March 27, 2020 shows larger positive biases and RMSEs, indicating that the sea-ice-oriented parameter settings cannot be directly transferred to land gridded-product validation. The remaining errors are mainly related to spatial pairing, footprint differences, sliding-window smoothing, deconvolution stability, background noise, surface roughness, and surface type.
+
+\textbf{Keywords:} ICESat-2; photon-counting lidar; snow-depth retrieval; sea ice; Operation IceBridge; UA/CMC snow depth; multiple scattering

@@ -19,7 +19,7 @@
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{figure/proposal/simulate_workflow.jpg}
+    \includegraphics[width=0.8\textwidth]{final/proposal/semianalytic_monte_carlo_workflow}
     \caption{半解析蒙特卡罗偏振激光雷达辐射传仿真模型流程图}
     \label{半解析蒙特卡罗偏振激光雷达辐射传仿真模型流程图}
 \end{figure}
@@ -34,7 +34,7 @@
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.6\textwidth]{figure/proposal/单光子探测器响应模型.png}
+    \includegraphics[width=0.6\textwidth]{final/proposal/single_photon_detector_response}
     \caption{单光子探测器响应模型}
     \label{单光子探测器响应模型}
 \end{figure}
@@ -80,7 +80,7 @@ N_D \, P_{sd}(t,t+\Delta t)
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{figure/proposal/探测器光子点云仿真流程图.png}
+    \includegraphics[width=0.8\textwidth]{final/proposal/photon_point_cloud_simulation_workflow}
     \caption{探测器光子点云仿真流程图}
     \label{探测器光子点云仿真流程图}
 \end{figure}
@@ -130,7 +130,7 @@ $T_r$ 为单光子事件产生的时间单元。
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.4\textwidth]{figure/proposal/均匀照明光子扩散的平均行进路径长度.png}
+    \includegraphics[width=0.4\textwidth]{final/proposal/uniform_illumination_pathlength_scheme}
     \caption{均匀照明光子扩散的平均行进路径长度}
     \label{均匀照明光子扩散的平均行进路径长度}
 \end{figure}
@@ -175,7 +175,7 @@ $p(z)$ 为无吸收雪后向散射光程分布；
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{figure/proposal/ICESat-2_沿南极洲地面轨迹测量的积雪剖面.jpg}
+    \includegraphics[width=0.8\textwidth]{final/proposal/icesat2_antarctic_snow_profile}
     \caption{ICESat-2 沿南极洲地面轨迹测量的积雪剖面}
     \label{fig:snow_profile}
 \end{figure}
@@ -414,4 +414,3 @@ a
 % 在进行半解析光子接收时，如果该部分光子与探测器的连线不与 $z$ 轴重合的话，其斯托克斯矢量的参考面与探测器坐标系的参考子午面即XOZ平面会存在一定的夹角 $\phi$，回到探测器的光子的斯托克斯矢量需要乘以旋转矩阵 $R(\phi)$，其中 $\phi$ 角可计算得到；然后将该部分光子的权重加到累计的回波信号中。通过对大量的光子进行追迹，即可得到最终的偏振激光雷达回波信号。
 
 % 通常，一个激光脉冲中的光子能回到探测器的概率很低，随着光学厚度的增加概率还会下降。以上半解析MC计算过程的引入将会大大提高模型的收敛速度。通过该半解析蒙特卡洛模型，可以快速获得激光的实际光程，从而研究在不同雪面处的多次散射过程，获得更加准确的积雪激光雷达信号，从而反演出积雪雪深与其他参数。
-
