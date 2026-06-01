@@ -32,7 +32,7 @@
     MajorFormat     = general,
     Degree          = undergraduate,   % 'undergraduate' or 'graduate'
     Type            = thesis,          % 'thesis'   or 'design'
-    Period          = paper,           % 'proposal' or 'paper' or 'final'
+    Period          = final,           % 'proposal' or 'paper' or 'final'
     BlindReview     = false,           % 'false'    or 'true'
     Language        = chinese,         % 'chinese'  or 'english'
     % Graduate Thesis Info
@@ -83,7 +83,10 @@
         \resetpagecounter{}
         \inputbody{final/content}
         \inputbody{final/post}
-
+        
+        \poststyle
+        \inputpage{final}{post}
+        
         % Proposal part
         \renewcommand{\undergradcurrstage}{proposal}
         \newrefsection

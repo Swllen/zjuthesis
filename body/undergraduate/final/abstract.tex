@@ -7,7 +7,7 @@
 
 本文在已有多次散射路径长度统计矩理论基础上，构建了面向 ATL03 实测数据的完整处理链，包括强束光子筛选、主表面识别、表面对齐、后向散射剖面构建、背景扣除、系统响应去卷积以及基于统计矩的迭代雪深求解。通过将校正后的次表层回波剖面转换为路径长度分布，进一步利用平均路径长度与雪深之间的关系获得沿轨雪深结果。
 
-以 2019 年 4 月 12 日、4 月 19 日和 4 月 22 日 ICESat-2 与 Operation IceBridge（OIB）机载雪深重叠观测作为海冰验证样本，在 4\,km 空间邻域和 350\,m 沿轨窗口条件下，轨道2共获得 4271 对有效配对样本。结果表明，总体 Bias 为 0.0058\,m，RMSE 为 0.0558\,m，MAE 为 0.0429\,m，91.43\% 的样本绝对误差不超过 0.10\,m。上述结果说明，该方法能够较好恢复 OIB 重叠航段上的背景雪深量级。与此同时，逐点相关系数仅为 0.3002，且反演雪深标准差明显小于 OIB 参考值，表明该方法对局地起伏和深雪峰值的响应仍然不足。
+以 2019 年 4 月 12 日、4 月 19 日和 4 月 22 日 ICESat-2 与 Operation IceBridge（OIB）机载雪深重叠观测作为海冰验证样本，在 4\,km 空间邻域和 3.6\,km 沿轨窗口条件下，轨道 2 共获得 4231 对有效配对样本。结果表明，总体 Bias 为 0.0054\,m，RMSE 为 0.0620\,m，MAE 为 0.0487\,m，88.58\% 的样本绝对误差不超过 0.10\,m。上述结果说明，该方法能够较好恢复 OIB 重叠航段上的背景雪深量级。与此同时，逐点相关系数仅为 0.2798，且反演雪深标准差明显小于 OIB 参考值，表明该方法对局地起伏和深雪峰值的响应仍然不足。
 
 在陆地验证部分，本文进一步将 2020 年 3 月 27 日陆地区域 ICESat-2 轨段与 UA 原位同化雪深数据和 CMC 24\,km 逐日雪深分析产品进行对比。结果显示，当前围绕海冰样本调试的参数体系难以直接迁移至陆地区域，说明地表类型差异、空间尺度不一致、剖面平滑效应以及系统响应校正稳定性等因素仍是制约方法推广应用的关键问题。
 
@@ -23,7 +23,7 @@ Snow depth is a key variable for sea-ice thickness retrieval and cryospheric ene
 
 Based on the existing theory of photon path-length statistical moments, a complete processing workflow is established for ATL03 observations, including strong-beam photon screening, main-surface detection, surface alignment, backscatter-profile construction, background subtraction, system-response deconvolution, and iterative snow-depth estimation. The corrected subsurface profile is converted into a path-length distribution, from which along-track snow depth is derived using the relation between mean photon path length and snow depth.
 
-Sea-ice validation uses overlapping ICESat-2 and Operation IceBridge observations on 12, 19, and 22 April 2019. Under a 4\,km spatial neighborhood and a 350\,m along-track window, 4271 valid sample pairs are obtained for track 2. The overall Bias, RMSE, and MAE are 0.0058\,m, 0.0558\,m, and 0.0429\,m, respectively, and 91.43\% of the absolute errors are within 0.10\,m. These results indicate that the method can recover the background magnitude of snow depth along the OIB-overlapped segments. However, the pointwise correlation coefficient is only 0.3002, and the retrieved standard deviation is smaller than that of the OIB reference, indicating limited sensitivity to local fluctuations and deep-snow peaks.
+Sea-ice validation uses overlapping ICESat-2 and Operation IceBridge observations on 12, 19, and 22 April 2019. Under a 4\,km spatial neighborhood and a 3.6\,km along-track window, 4231 valid sample pairs are obtained for track 2. The overall Bias, RMSE, and MAE are 0.0054\,m, 0.0620\,m, and 0.0487\,m, respectively, and 88.58\% of the absolute errors are within 0.10\,m. These results indicate that the method can recover the background magnitude of snow depth along the OIB-overlapped segments. However, the pointwise correlation coefficient is only 0.2798, and the retrieved standard deviation is smaller than that of the OIB reference, indicating limited sensitivity to local fluctuations and deep-snow peaks.
 
 Land validation further compares a 27 March 2020 ICESat-2 land track with UA in-situ-assimilated snow depth and the CMC 24\,km daily snow-depth analysis product. The results suggest that the present parameter setting, which is tuned for sea-ice scenes, cannot be directly transferred to land environments. The main limitations are related to spatial pairing, footprint mismatch, smoothing induced by sliding windows, deconvolution stability, background noise, surface roughness, and differences in surface type.
 
