@@ -1,7 +1,12 @@
 \cleardoublepage{}
 
-\resetpagecounter{}
+\zjucapturetocsnapshot
 
-\tableofcontents
-
-\clearpage
+\begingroup
+    \pagestyle{tocprevious}
+    \tocloftpagestyle{tocprevious}
+    \thispagestyle{tocprevious}
+    \undergradfinaltocformat
+    \tableofcontents
+    \clearpage
+\endgroup

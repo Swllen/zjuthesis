@@ -1,5 +1,21 @@
 
 \cleardoublepage{}
-\tableofcontents
-
-\clearpage
+\ifthenelse{\equal{\Period}{final}}
+{
+    \begingroup
+        \pagestyle{tocprevious}
+        \thispagestyle{tocprevious}
+        \undergradproposaltocformat
+        \zjutableofcontentsfromsnapshot
+        \clearpage
+    \endgroup
+}
+{
+    \begingroup
+        \pagestyle{tocprevious}
+        \tocloftpagestyle{tocprevious}
+        \thispagestyle{tocprevious}
+        \tableofcontents
+        \clearpage
+    \endgroup
+}

@@ -28,6 +28,19 @@
         \fancyhead[OR]{\zihao{-5} \songti \Title}
         \renewcommand{\headrulewidth}{0.6pt}
     }
+    \newcommand{\previoushead}
+    {
+        \fancyhead{}
+        \fancyhead[L]{\zihao{-5} \songti \TitleTypeName}
+        \fancyhead[R]{\zihao{-5} \songti \Title}
+        \renewcommand{\headrulewidth}{0.6pt}
+    }
+    \newcommand{\tochead}
+    {
+        \fancyhead{}
+        \fancyhead[R]{\zihao{-5} \songti \Title}
+        \renewcommand{\headrulewidth}{0.6pt}
+    }
     % Common page header & footer
     \fancypagestyle{common}
     {
@@ -38,7 +51,13 @@
     % Previous part header & footer
     \fancypagestyle{previous}
     {
-        \commonhead{}
+        \previoushead{}
+        \fancyfoot{}
+        \fancyfoot[C]{\zihao{-5}\thepage}
+    }
+    \fancypagestyle{tocprevious}
+    {
+        \tochead{}
         \fancyfoot{}
         \fancyfoot[C]{\zihao{-5}\thepage}
     }
@@ -155,6 +174,151 @@
 \setlength{\cftsubsubsecindent} {6em}
 \setlength{\cftbeforechapskip}  {0em}
 
+\makeatletter
+\newcommand{\zjutocsnapshot}{}
+\newcommand{\zjucapturetocsnapshot}
+{
+    \IfFileExists{\jobname.toc}
+    {
+        \CatchFileDef{\zjutocsnapshot}{\jobname.toc}{}
+    }
+    {
+        \gdef\zjutocsnapshot{}
+    }
+}
+\newcommand{\zjutableofcontentsfromsnapshot}
+{
+    \vspace*{\cftbeforetoctitleskip}
+    \noindent\makebox[\linewidth][c]{\fangsong\zihao{3}\contentsname}\par
+    \vspace{\cftaftertoctitleskip}
+    \zjutocsnapshot
+}
+\newcommand{\zjusecondpartchaptertocline}[2]
+{
+    \if\relax\detokenize{#2}\relax
+        \par\noindent{\fangsong\zihao{-4}#1}\par
+    \else
+        \begingroup
+            \renewcommand{\@dotsep}{\cftchapdotsep}%
+            \renewcommand{\numberline}[1]{%
+                \begingroup
+                    \renewcommand{\hspace}[1]{}%
+                    ##1%
+                \endgroup
+            }%
+            \@dottedtocline{0}{0em}{0em}{\fangsong\zihao{-4}#1}{\fangsong\zihao{-4}#2}%
+        \endgroup
+    \fi
+}
+
+\newcommand{\undergradfinaltocformat}
+{
+    \linespreadonehalf{}\selectfont
+    \global\zjutocsecondpartfalse
+
+    \renewcommand{\cfttoctitlefont}{\hfill\fangsong\zihao{3}}
+    \renewcommand{\cftaftertoctitle}{\hfill}
+    \setlength{\cftbeforetoctitleskip}{0pt}
+    \setlength{\cftaftertoctitleskip}{0pt}
+    \renewcommand{\cftchapdotsep}{0.5}
+    \renewcommand{\cftsecdotsep}{0.5}
+    \renewcommand{\cftsubsecdotsep}{0.5}
+    \renewcommand{\cftsubsubsecdotsep}{0.5}
+
+    \cftpagenumbersoff{part}
+    \renewcommand{\cftpartfont}{\fangsong\zihao{4}\bfseries}
+    \renewcommand{\cftpartpagefont}{}
+    \setlength{\cftpartindent}{0em}
+    \setlength{\cftbeforepartskip}{0pt}
+
+    \renewcommand{\cftchapfont}{\heiti\zihao{-4}}
+    \renewcommand{\cftchappagefont}{\heiti\zihao{-4}}
+    \renewcommand{\cftchapleader}{\cftdotfill{\cftchapdotsep}}
+    \setlength{\cftchapindent}{0em}
+    \setlength{\cftbeforechapskip}{0pt}
+
+    \renewcommand{\cftsecfont}{\heiti\zihao{-4}}
+    \renewcommand{\cftsecpagefont}{\heiti\zihao{-4}}
+    \renewcommand{\cftsecleader}{\cftdotfill{\cftsecdotsep}}
+    \setlength{\cftsecindent}{0em}
+    \setlength{\cftbeforesecskip}{0pt}
+
+    \renewcommand{\cftsubsecfont}{\fangsong\zihao{-4}}
+    \renewcommand{\cftsubsecpagefont}{\fangsong\zihao{-4}}
+    \renewcommand{\cftsubsecleader}{\cftdotfill{\cftsubsecdotsep}}
+    \setlength{\cftsubsecindent}{2em}
+    \setlength{\cftbeforesubsecskip}{0pt}
+
+    \renewcommand{\cftsubsubsecfont}{\fangsong\zihao{-4}}
+    \renewcommand{\cftsubsubsecpagefont}{\fangsong\zihao{-4}}
+    \renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftsubsubsecdotsep}}
+    \setlength{\cftsubsubsecindent}{4em}
+    \setlength{\cftbeforesubsubsecskip}{0pt}
+
+    \let\zjuoriginall@chapter\l@chapter
+    \let\zjuoriginall@section\l@section
+    \let\zjuoriginall@subsection\l@subsection
+    \let\zjuoriginall@subsubsection\l@subsubsection
+    \renewcommand*{\l@chapter}[2]{%
+        \ifzjutocsecondpart
+            \zjusecondpartchaptertocline{##1}{##2}%
+        \else
+            \zjuoriginall@chapter{##1}{##2}%
+        \fi
+    }
+    \renewcommand*{\l@section}[2]{\ifzjutocsecondpart\else\zjuoriginall@section{##1}{##2}\fi}
+    \renewcommand*{\l@subsection}[2]{\ifzjutocsecondpart\else\zjuoriginall@subsection{##1}{##2}\fi}
+    \renewcommand*{\l@subsubsection}[2]{\ifzjutocsecondpart\else\zjuoriginall@subsubsection{##1}{##2}\fi}
+}
+
+\newcommand{\undergradproposaltocformat}
+{
+    \linespreadonehalf{}\selectfont
+    \global\zjutocsecondpartfalse
+
+    \renewcommand{\cfttoctitlefont}{\hfill\fangsong\zihao{3}}
+    \renewcommand{\cftaftertoctitle}{\hfill}
+    \setlength{\cftbeforetoctitleskip}{0pt}
+    \setlength{\cftaftertoctitleskip}{0pt}
+    \renewcommand{\cftchapdotsep}{0.5}
+    \renewcommand{\cftsecdotsep}{0.5}
+    \renewcommand{\cftsubsecdotsep}{0.5}
+    \renewcommand{\cftsubsubsecdotsep}{0.5}
+
+    \renewcommand{\cftchapfont}{\zihao{-4}}
+    \renewcommand{\cftchappagefont}{}
+    \renewcommand{\cftchapleader}{\cftdotfill{\cftchapdotsep}}
+    \setlength{\cftchapindent}{0em}
+    \setlength{\cftbeforechapskip}{0pt}
+
+    \renewcommand{\cftsecfont}{\zihao{-4}}
+    \renewcommand{\cftsecpagefont}{}
+    \renewcommand{\cftsecleader}{\cftdotfill{\cftsecdotsep}}
+    \setlength{\cftsecindent}{2em}
+
+    \renewcommand{\cftsubsecfont}{\zihao{-4}}
+    \renewcommand{\cftsubsecpagefont}{}
+    \renewcommand{\cftsubsecleader}{\cftdotfill{\cftsubsecdotsep}}
+    \setlength{\cftsubsecindent}{4em}
+
+    \renewcommand{\cftsubsubsecfont}{\zihao{-4}}
+    \renewcommand{\cftsubsubsecpagefont}{}
+    \renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftsubsubsecdotsep}}
+    \setlength{\cftsubsubsecindent}{6em}
+
+    \let\zjuoriginall@part\l@part
+    \let\zjuoriginall@chapter\l@chapter
+    \let\zjuoriginall@section\l@section
+    \let\zjuoriginall@subsection\l@subsection
+    \let\zjuoriginall@subsubsection\l@subsubsection
+    \renewcommand*{\l@part}[2]{}
+    \renewcommand*{\l@chapter}[2]{\global\zjutocsecondparttrue\zjusecondpartchaptertocline{##1}{##2}}
+    \renewcommand*{\l@section}[2]{\ifzjutocsecondpart\zjuoriginall@section{##1}{##2}\fi}
+    \renewcommand*{\l@subsection}[2]{\ifzjutocsecondpart\zjuoriginall@subsection{##1}{##2}\fi}
+    \renewcommand*{\l@subsubsection}[2]{\ifzjutocsecondpart\zjuoriginall@subsubsection{##1}{##2}\fi}
+}
+\makeatother
+
 % graduate template listoffigures/tables
 \ifthenelse{\equal{\Degree}{graduate}}
 {
@@ -178,42 +342,24 @@
 }
 {}
 
-\makeatletter
-\newcounter{blankpages}
-\setcounter{blankpages}{0}
-\newcounter{actualpage}
-\setcounter{actualpage}{0}
-\makeatother
-
 \newcommand{\resetpagecounter}
 {
     \setcounter{page}{1}
-    \setcounter{blankpages}{0}
-    \setcounter{actualpage}{1}
 }
 
 \newcommand{\minuspagecounter}
 {
     \setcounter{page}{-1}
-    \setcounter{blankpages}{0}
-    \setcounter{actualpage}{-1}
 }
 
 \ifTrueBlankPage
     \makeatletter
-    \apptocmd{\stepcounter}
-    {
-        \setcounter{actualpage}{\value{page}}%
-        \addtocounter{actualpage}{-\value{blankpages}}%
-    }{}{}
-
     \renewcommand{\cleardoublepage}
     {
         \clearpage
         \if@twoside
             \ifodd\value{page}
             \else
-            \refstepcounter{blankpages}
             \begingroup
                 \hbox{}
                 \thispagestyle{empty}
@@ -221,17 +367,6 @@
             \endgroup
             \fi
         \fi
-    }
-
-    \let\origpagenumbering\pagenumbering
-
-    \renewcommand{\pagenumbering}[1]
-    {
-        \origpagenumbering{#1}
-        \renewcommand{\thepage}
-        {
-            \csname #1\endcsname{actualpage}
-        }
     }
     \makeatother
 \fi

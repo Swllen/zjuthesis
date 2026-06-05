@@ -112,13 +112,13 @@
 \subsection{北极海冰区域雪深反演结果与 OIB 验证}
 OIB 机载雪深观测是本章的海冰验证数据。验证数据选取 2019 年 4 月 12 日、4 月 19 日和 4 月 22 日三次北极海冰 OIB 航线；这三天均保存了同日 OIB 雪深观测、ICESat-2 ATL03 反演结果以及近时空配对表，能够用于比较两类观测在重叠航段上的一致性。三期航线与对应 ICESat-2 轨段的空间位置如\autoref{fig:arctic-tracks-map}所示，样本主要分布在格陵兰北侧至加拿大北极群岛附近的高纬海冰区。
 
-\begin{figure}[!htbp]
+如\autoref{fig:arctic-tracks-map}所示，三期验证样本位于北极高纬海冰区，OIB 航线与 ICESat-2 轨段在空间上只形成局部交会，而不是整条航线完全重合。图中彩色点线表示 OIB 沿轨雪深观测，色标由蓝到红对应约 10--50\,cm 的雪深变化；黑色线段表示对应日期附近的 ATL03 地面轨迹，旁边编号用于区分不同 ICESat-2 轨段。4 月 12 日样本主要位于较高纬度的局地重叠区域，4 月 19 日和 4 月 22 日航线向格陵兰北侧延伸，覆盖范围和雪深背景均与 4 月 12 日不同。该空间分布说明，后续配对验证实际评价的是 OIB 与 ICESat-2 在局部重叠航段上的一致性，而不是对 OIB 全航线雪深场的整体检验，这一点也是解释误差统计的前提。
+
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.74\textwidth]{final/validation/oib/oib_icesat2_arctic_tracks_map}
+    \includegraphics[width=0.6\textwidth]{final/validation/oib/oib_icesat2_arctic_tracks_map}
     \caption{\label{fig:arctic-tracks-map}三期 OIB 航线与 ICESat-2 轨段空间分布。颜色表示 OIB 雪深，黑线为 ATL03 轨段。}
 \end{figure}
-
-如\autoref{fig:arctic-tracks-map}所示，三期验证样本位于北极高纬海冰区，OIB 航线与 ICESat-2 轨段在空间上只形成局部交会，而不是整条航线完全重合。图中彩色点线表示 OIB 沿轨雪深观测，色标由蓝到红对应约 10--50\,cm 的雪深变化；黑色线段表示对应日期附近的 ATL03 地面轨迹，旁边编号用于区分不同 ICESat-2 轨段。4 月 12 日样本主要位于较高纬度的局地重叠区域，4 月 19 日和 4 月 22 日航线向格陵兰北侧延伸，覆盖范围和雪深背景均与 4 月 12 日不同。该空间分布说明，后续配对验证实际评价的是 OIB 与 ICESat-2 在局部重叠航段上的一致性，而不是对 OIB 全航线雪深场的整体检验，这一点也是解释误差统计的前提。
 
 本文的配对样本以 ICESat-2 反演点为基本单位。对每一个 ICESat-2 雪深点，在 OIB 航线中选取满足 4\,km 空间邻域约束且落入 3.6\,km 沿轨窗口的有效 OIB 雪深观测，并以窗口内 OIB 雪深平均值作为该点的机载参考值；若窗口内没有有效 OIB 观测，则该 ICESat-2 点不进入统计。因此，表中的配对样本数表示 ICESat-2 反演雪深与相应 OIB 邻域平均雪深构成的有效样本对数量，而不是原始 OIB 采样点数量。跨日期总配对表仅保留轨道 2 分支的最终雪深结果，共 4231 对有效样本，因此后续定量指标以轨道 2 为主要统计对象。轨道 1 和轨道 3 不参与表格统计，主要用于图件中展示不同轨道分支在相同日期上的沿轨形态是否一致，避免将不同分支的非同一配对样本混合后造成重复计数或样本口径不一致，从而保证统计结果可追溯。
 
@@ -183,7 +183,7 @@ OIB 机载雪深观测是本章的海冰验证数据。验证数据选取 2019 �
         \caption{}
         \label{fig:oib-batch-20190422}
     \end{subfigure}
-    \caption{\label{fig:oib-batch-tracks}三次 OIB 航线的沿轨雪深分布，用于说明验证样本所在日期的背景雪况差异：（a）2019 年 4 月 12 日航线。（b）2019 年 4 月 19 日航线。（c）2019 年 4 月 22 日航线。灰色点表示 OIB 原始雪深观测，黑线表示平滑后的背景雪深；雪深单位为 m。}
+    \caption{\label{fig:oib-batch-tracks}三次 OIB 航线的沿轨雪深分布。（a）2019 年 4 月 12 日；（b）2019 年 4 月 19 日；（c）2019 年 4 月 22 日。灰色点表示 OIB 原始雪深观测，黑线表示平滑后的背景雪深，单位为 m。}
 \end{figure}
 
 如\autoref{fig:oib-batch-tracks}所示，三次航线的完整 OIB 沿轨分布存在明显差异。图~\ref{fig:oib-batch-tracks}(\subref{fig:oib-batch-20190412}) 中黑色平滑曲线主要位于 0.15--0.30\,m 区间，局部峰值接近 0.40\,m，对应较浅而起伏频繁的背景雪况。图~\ref{fig:oib-batch-tracks}(\subref{fig:oib-batch-20190419}) 显示 4 月 19 日前半段雪深多处超过 0.40\,m，随后沿轨逐步下降至 0.20--0.30\,m，说明该日期同时存在较深雪区和明显的低频背景变化。图~\ref{fig:oib-batch-tracks}(\subref{fig:oib-batch-20190422}) 的背景雪深整体介于前两者之间，沿轨呈缓慢下降后再趋于平稳的形态。三条航线共同说明，误差分析不能脱离具体日期讨论，因为每一天的背景均值、局地起伏幅度和深雪区覆盖范围并不相同，这为后续分日统计提供了必要背景。
@@ -215,12 +215,7 @@ OIB 机载雪深观测是本章的海冰验证数据。验证数据选取 2019 �
         \label{fig:merged-comparison-20190422}
     \end{subfigure}
     \caption{\label{fig:oib-icesat2-track-comparison}
-    三期 OIB 与 ICESat-2 沿轨雪深对比结果。
-    (a) 2019 年 4 月 12 日；
-    (b) 2019 年 4 月 19 日；
-    (c) 2019 年 4 月 22 日。
-    灰色散点表示 OIB 原始雪深观测，红线表示 3.6\,km 沿轨窗口平均后的 OIB 雪深，
-    蓝线、绿线和黑线分别表示 ICESat-2 轨道 1、轨道 2 和轨道 3 的反演雪深结果。
+    三期 OIB 与 ICESat-2 沿轨雪深对比结果。（a）2019 年 4 月 12 日；（b）2019 年 4 月 19 日；（c）2019 年 4 月 22 日。灰色散点为 OIB 原始观测，红线为 3.6\,km 窗口平均 OIB 雪深，蓝、绿、黑线分别为 ICESat-2 轨道 1、2、3 结果。
     }
     \label{fig:merged-comparison-tracks}
 \end{figure}
@@ -230,9 +225,9 @@ OIB 机载雪深观测是本章的海冰验证数据。验证数据选取 2019 �
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.90\textwidth]{final/validation/oib/oib_icesat2_validation_summary}
-    \caption{\label{fig:overall-validation}OIB 与 ICESat-2 配对样本的总体统计特征，用于从逐点关系、分布形态、残差和日均值四个角度评估海冰验证结果：（a）逐点配对散点，横轴为 ICESat-2 反演雪深，纵轴为 OIB 邻域平均雪深，颜色表示样本频数，虚线表示 1:1 参考线，样本量为 \(N=4231\)，点级决定系数为 \(R^2=0.08\)；（b）OIB 与 ICESat-2 两类雪深分布，蓝线表示 ICESat-2，红线表示 IceBridge，ICESat-2 积雪深度为 \(27.2\pm3.0\,\mathrm{cm}\)，IceBridge 积雪深度为 \(26.6\pm6.3\,\mathrm{cm}\)，RMSE 为 6.2\,cm，Bias（ICESat-2 - IceBridge）为 0.5\,cm；（c）残差频数分布，残差定义为 ICESat-2 反演雪深减去 OIB 邻域平均雪深，差值平均值为 0.5\,cm，标准差为 6.2\,cm；（d）逐日均值比较，点和误差棒表示三条轨迹的日均雪深及离散程度，轨迹数为 \(N=3\)，ICESat-2 轨迹平均积雪深度为 \(27.0\pm2.8\,\mathrm{cm}\)，IceBridge 轨迹平均积雪深度为 \(25.2\pm5.3\,\mathrm{cm}\)，轨迹级 RMSE 为 3.3\,cm，轨迹级 Bias（ICESat-2 - IceBridge）为 1.8\,cm，轨迹级决定系数为 \(R^2=0.98\)。}
+    \caption{\label{fig:overall-validation}OIB 与 ICESat-2 配对样本的总体统计特征。（a）逐点配对散点；（b）两类雪深分布；（c）ICESat-2 减 OIB 的残差分布；（d）逐日均值比较。雪深单位为 cm，虚线表示 1:1 参考线。}
 \end{figure}
-\FloatBarrier
+% \FloatBarrier
 
 \subsubsection{跨日期统计评价}
 按照前文定义的评价指标，本文分别从均值偏差、绝对误差和逐点相关性三个层面解释 OIB 海冰验证结果。
@@ -291,7 +286,7 @@ Bias、RMSE 和 MAE 主要反映平均偏差和绝对误差大小，而相关系
         \caption{}
         \label{fig:cmc-track-map}
     \end{subfigure}
-    \caption{\label{fig:ua-cmc-track-maps}2020 年 3 月 27 日 UA、CMC 陆地雪深产品与 ICESat-2 轨迹的空间对应关系，用于说明陆地验证中参考数据分辨率和空间背景的差异：（a）UA daily 4\,km 格网雪深与 ICESat-2 轨迹，展示原位同化雪深格网中 ATL03 轨段的穿越位置；（b）CMC 24\,km 格网雪深与 ICESat-2 轨迹，展示较粗分析场中 ATL03 轨段与大尺度雪深背景的关系。彩色背景表示格网雪深，红色曲线表示 ATL03 轨段；雪深单位为 m。}
+    \caption{\label{fig:ua-cmc-track-maps}2020 年 3 月 27 日 UA、CMC 陆地雪深产品与 ICESat-2 轨迹的空间对应关系。（a）UA daily 4\,km 格网雪深；（b）CMC 24\,km 格网雪深。彩色背景表示格网雪深，红色曲线表示 ATL03 轨段，雪深单位为 m。}
 \end{figure}
 \FloatBarrier
 
@@ -300,7 +295,7 @@ Bias、RMSE 和 MAE 主要反映平均偏差和绝对误差大小，而相关系
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.94\textwidth]{final/validation/ua_cmc/ua_cmc_icesat2_profiles_20200327}
-    \caption{\label{fig:ua-ice2-profiles}2020 年 3 月 27 日 ICESat-2 反演雪深与 UA/CMC 陆地雪深产品的沿轨对比，用于展示星载反演结果与两类陆地格网参考数据在同一 ATL03 轨段上的空间变化关系。三个面板自上而下分别对应 ICESat-2 的 beam1、beam2 和 beam3 强束分支；横轴为沿轨采样位置，刻度上行为纬度、下行为经度，纵轴为雪深，单位为 m。蓝色曲线表示 ICESat-2 反演雪深，红色带点曲线表示 UA daily 4\,km 格网雪深产品，绿色点或短线表示 CMC daily 24\,km 格网雪深产品。由于三条强束在横轨方向相互分离，地面轨迹并不完全重合，因此三个面板对应的经纬度位置和横轴刻度存在差异；其空间分布背景见\autoref{fig:ua-cmc-track-maps}。}
+    \caption{\label{fig:ua-ice2-profiles}2020 年 3 月 27 日 ICESat-2 反演雪深与 UA/CMC 陆地雪深产品的沿轨对比。三个面板自上而下对应 beam1、beam2 和 beam3 强束分支；蓝线为 ICESat-2，红色带点曲线为 UA，绿色点或短线为 CMC，单位为 m。三条强束的空间背景见\autoref{fig:ua-cmc-track-maps}。}
 \end{figure}
 \FloatBarrier
 

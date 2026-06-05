@@ -31,7 +31,7 @@ ICESat-2 共发射六束激光，组成三组光束对。每组光束对包含�
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.92\textwidth, trim=0 6 4 8, clip]{final/ATL03_intro}
-    \caption{\label{fig:atlas-atl03-intro}ATLAS 光子计数激光雷达系统、光束结构与 ATL03 光子事件示意图，用于说明本文 ATL03 光子数据的观测来源和主要误差因素：（a）ICESat-2 卫星搭载 ATLAS 对冰雪表面发射 532\,nm 绿光激光并接收返回光子，轨道高度约为 500\,km，双程飞行时间用于测距；（b）ATLAS 六束光束由三组 beam pair 组成，每组包含强束和弱束，束对内间距约 90\,m，组间间距约 3.3\,km，脉冲重复频率约 10\,kHz，沿轨采样间距约 0.7\,m，强弱束能量比约为 4:1；（c）光子计数流程包括激光脉冲发射、表面或雪体散射返回、单光子探测、时间标记与定位，最终输出包含时间、经纬度、高程和置信度等字段的离散 photon events；（d）绿色项目表示光子计数观测的主要优势，橙色项目表示太阳背景噪声、探测器暗计数、后脉冲和系统响应拖尾等主要误差来源。该图为系统结构和误差来源示意，不包含样本统计量。}
+    \caption{\label{fig:atlas-atl03-intro}ATLAS 光子计数激光雷达系统、光束结构与 ATL03 光子事件示意图。（a）卫星观测与测距几何；（b）三组强弱光束对的空间布局；（c）光子计数探测与 ATL03 事件输出流程；（d）光子计数观测优势及主要误差来源。}
 \end{figure}
 \FloatBarrier
 
@@ -75,7 +75,7 @@ ATL03 数据以 HDF5（Hierarchical Data Format version 5，第五版层次化�
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.8\textwidth, trim=10 10 8 12, clip]{final/data_compare}
-    \caption{\label{fig:data-region-overview}本文使用的数据来源、研究区域与验证场景示意图，用于区分反演输入、海冰主验证数据和陆地补充对照数据：（a）主要数据及作用，其中 ICESat-2 ATL03 用作主反演数据，覆盖 2019/2020 年北极海冰和陆地区域；OIB 机载雪深数据用作 2019 年 4 月北极海冰主验证数据；UA 4\,km 雪深和 CMC 雪深产品均对应 2020 年 3 月 27 日陆地区域，用作补充边界检验；（b）研究区域与数据分布，上图为北极海冰验证区域，下图为北美陆地补充对照区域。蓝色线表示 ICESat-2 ATL03 沿轨轨迹，橙色线和飞机符号表示 OIB 机载航线，蓝色虚线框表示海冰研究范围，浅蓝背景表示海冰范围，棕色虚线框表示陆地研究范围，网格填充表示 UA/CMC 格网雪深产品。该图仅说明数据组织和空间关系，不报告误差统计指标。}
+    \caption{\label{fig:data-region-overview}本文使用的数据来源、研究区域与验证场景示意图。（a）ATL03、OIB、UA 和 CMC 数据的功能分工；（b）北极海冰验证区域与北美陆地对照区域的空间分布。蓝色轨迹表示 ICESat-2，橙色航线表示 OIB，网格背景表示 UA/CMC 雪深产品。}
 \end{figure}
 \FloatBarrier
 
@@ -131,7 +131,7 @@ CMC 数据的优势在于空间覆盖稳定、时间连续且数据结构规则�
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.94\textwidth, trim=8 8 12 12, clip]{final/method/snow_retrieval_pipeline}
-    \caption{\label{fig:method-workflow}基于 ATL03 光子剖面和多次散射统计矩的雪深反演完整方法流程图，用于概括从 ICESat-2 光子事件到雪深结果及误差评价的处理链：（1）ATL03 输入与预处理模块读取光子数据，并通过沿轨约 10 个脉冲的聚合窗口形成原始垂向后向散射剖面；（2）剖面处理与去卷积模块完成去噪、平滑、峰值选择、海面或雪面参考基准确定以及仪器响应校正，输出校正后的雪层后向散射剖面 \(\beta(z)\)；（3）多次散射路径长度分布反演模块根据表面散射与雪层内部多次散射的物理差异，利用平均路径长度、统计矩和吸收校正迭代更新吸收系数、反照率、粒径等参数，最终得到雪深 \(H\) 或表面高度；（4）误差分析与结果评价模块使用 OIB、UA 和 CMC 参考数据进行对比验证，并计算 RMSE、MAE、Bias、\(R^2\)（Coefficient of Determination，决定系数）和样本数量等统计指标。图中黑色箭头表示处理流程方向，蓝色元素表示 ICESat-2/ATL03 输入，紫色区域表示多次散射反演，橙色区域表示评价指标与结果解释。}
+    \caption{\label{fig:method-workflow}基于 ATL03 光子剖面和多次散射统计矩的雪深反演流程图。（1）ATL03 输入与预处理；（2）剖面处理与系统响应校正；（3）多次散射路径长度统计与雪深求解；（4）OIB、UA 和 CMC 结果评价。}
 \end{figure}
 \FloatBarrier
 
@@ -222,7 +222,7 @@ ATL03 光子数据包含地表、雪层内部、大气背景和随机噪声等�
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.92\textwidth]{final/processing/0419_Day_profile_strg3_ATL03_20190419131031_03250304_007_01.surface.jpg}
-    \caption{\label{fig:surface-tracking-dates}2019 年 4 月 19 日典型 ATL03 轨段的主表面识别结果，用于检验表面对齐前的深度零点稳定性。灰色点云表示原始 ATL03 光子分布，红色轨迹表示经过连续性约束后保留的参考表面；主峰连续且参考表面稳定，可用于定义局地深度零点并支撑后续表面对齐。}
+    \caption{\label{fig:surface-tracking-dates}2019 年 4 月 19 日典型 ATL03 轨段的主表面识别结果。灰色点云表示原始 ATL03 光子，红色轨迹表示连续性约束后的参考表面。}
 \end{figure}
 
 得到参考表面后，需要将不同沿轨位置处的光子对齐到同一垂向坐标系。设 \(h_s(t_i)\) 为第 \(i\) 个光子所在位置的参考表面高程，则表面对齐后的相对高程定义为
@@ -249,7 +249,7 @@ ATL03 光子数据包含地表、雪层内部、大气背景和随机噪声等�
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.78\textwidth]{final/processing/0419_Day_profile_strg3_ATL03_20190419131031_03250304_007_01.profile.jpg}
-    \caption{\label{fig:profile-denoise-dates}2019 年 4 月 19 日典型 ATL03 轨段的时间--深度剖面生成与噪声抑制结果，用于说明表面对齐后长尾信号是否在背景扣除过程中被保留。红色曲线表示噪声抑制前的标准化剖面集合，蓝色曲线表示背景扣除与深层平滑后的有效剖面集合；噪声抑制后尾部结构较清晰，表面以下长尾仍被保留。}
+    \caption{\label{fig:profile-denoise-dates}2019 年 4 月 19 日典型 ATL03 轨段的时间--深度剖面与噪声抑制结果。红色曲线表示背景扣除前的标准化剖面，蓝色曲线表示背景扣除与平滑后的有效剖面。}
 \end{figure}
 % \FloatBarrier
 
@@ -296,13 +296,13 @@ ATL03 剖面中的表面以下信号并不全部来自真实雪层散射。太�
 \begin{figure}[!htbp]
     \centering
     \includegraphics[
-        width=0.98\textwidth,
-        height=0.86\textheight,
+        width=0.9\textwidth,
+        height=0.8\textheight,
         keepaspectratio
     ]{final/method/snow_depth_inversion_flowchart}
     \caption{\label{fig:snow-depth-flowchart}基于代码实现的雪深反演流程图}
 \end{figure}
-\FloatBarrier
+% \FloatBarrier
 
 \subsubsection{吸收校正与统计矩计算}
 由于较长路径光子在雪层内更容易被吸收，直接对 \(\beta_m(z)\) 积分会低估长尾贡献。本文在有效深度范围内引入 \(e^{2k_az}\) 作为吸收校正因子，并在离散深度网格上计算路径长度统计矩：
@@ -341,7 +341,7 @@ ATL03 剖面中的表面以下信号并不全部来自真实雪层散射。太�
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.92\textwidth]{final/processing/track_plots/0419_ResultDay_profile_strg3_ATL03_20190419131031_03250304_007_01.profile_track.png}
-    \caption{2019 年 4 月 19 日典型 ATL03 轨段的沿轨雪深反演结果，用于展示统计矩求解的输出形态。灰线表示逐廓线雪深，红线表示 9 点滑动平均雪深；平滑后曲线保留低频变化趋势，同时削弱单个窗口内光子计数波动造成的局部尖峰。}
+    \caption{2019 年 4 月 19 日典型 ATL03 轨段的沿轨雪深反演结果。灰线表示逐廓线雪深，红线表示 9 点滑动平均雪深。}
     \label{fig:track-snow-depth-three-days}
 \end{figure}
 \FloatBarrier

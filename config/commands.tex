@@ -15,6 +15,20 @@
 
 \newcommand{\bful}[1]{{\bfseries\uline{#1}}}
 
+\newif\ifzjutocsecondpart
+\newcommand{\zjutocmarksecondpart}{\global\zjutocsecondparttrue}
+\newcommand{\zjutoclinewithoutpage}[2]{%
+    \begingroup
+        \cftpagenumbersoff{#1}%
+        \csname l@#1\endcsname{#2}{}%
+    \endgroup
+}
+\newcommand{\zjutocnopagechapterline}[1]{\par\noindent{\heiti\zihao{-4}#1}\par}
+\newcommand{\zjutocnopagechapter}[1]{\zjutocnopagechapterline{#1}}
+\newcommand{\zjutocnopagesection}[1]{\zjutoclinewithoutpage{section}{#1}}
+\newcommand{\zjutocplainnopagechapter}[1]{\zjutocnopagechapterline{#1}}
+\newcommand{\zjutocplainnopagesection}[1]{\zjutoclinewithoutpage{section}{#1}}
+
 % Commands to input body pages
 \ifthenelse{\equal{\Degree}{undergraduate}}
 {
@@ -66,6 +80,22 @@
         \setcounter{section}{0}
     }
 
+    \newcommand{\chapternonumnopagewithtoc}[2]
+    {
+        \cleardoublepage
+        \phantomsection
+        \addtocontents{toc}{\protect\zjutocnopagechapter{#2}}
+        \begin{center}
+            \bfseries \zihao{3} #1
+        \end{center}
+        \setcounter{section}{0}
+    }
+
+    \newcommand{\chapternonumnopage}[1]
+    {
+        \chapternonumnopagewithtoc{#1}{#1}
+    }
+
     \newcommand{\sectionnonum}[2][openright]
     {
 
@@ -81,9 +111,34 @@
         \phantomsection
         \addcontentsline{toc}{section}{#2}
         \begin{center}
-            \bfseries \zihao{3} #2	
-        \end{center}	
+            \bfseries \zihao{3} #2
+        \end{center}
         \setcounter{subsection}{0}
+    }
+
+    \newcommand{\sectionnonumnopagewithtoc}[3][openright]
+    {
+
+        \ifthenelse{\equal{\TwoSide}{true}}{
+            \ifthenelse{\equal{#1}{openright}}
+                {\cleardoublepage}
+                {\ifthenelse{\equal{#1}{openany}}{\clearpage}{}}
+        }{
+            \ifthenelse{\equal{#1}{openright}}
+                {\clearpage}
+                {\ifthenelse{\equal{#1}{openany}}{\clearpage}{}}
+        }
+        \phantomsection
+        \addtocontents{toc}{\protect\zjutocnopagesection{#3}}
+        \begin{center}
+            \bfseries \zihao{3} #2
+        \end{center}
+        \setcounter{subsection}{0}
+    }
+
+    \newcommand{\sectionnonumnopage}[2][openright]
+    {
+        \sectionnonumnopagewithtoc[#1]{#2}{#2}
     }
 }
 {
